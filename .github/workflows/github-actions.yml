@@ -7,12 +7,13 @@ on:
       - development
 
 jobs:
-  build:
+  build:dev:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Hello world | build"
 
-  deploy:
+  deploy:dev:
     runs-on: ubuntu-latest
+    needs: build:dev
     steps:
       - run: echo "Hello world | deploy"
