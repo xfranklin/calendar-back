@@ -7,7 +7,7 @@ on:
       - development
 
 jobs:
-  deploy:dev:
+  deploy-dev:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Hello world | build"
