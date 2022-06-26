@@ -37,5 +37,8 @@ jobs:
 
       - run: npm run build
 
-      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@206.189.12.4 "sudo cp /var/www/dev.oooi.app/api/.env /var/www/dev.oooi.app/.tmp-env"
-      - run: cd dist && rsync -e "ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no" --archive --compress --delete . github-user@206.189.12.4:/var/www/dev.oooi.app/api/
+      - name: Deploy
+      run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@206.189.12.4 "sudo cp /var/www/dev.oooi.app/api/.env /var/www/dev.oooi.app/.tmp-env"
+      run: cd dist && rsync -e "ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no" --archive --compress --delete . github-user@206.189.12.4:/var/www/dev.oooi.app/api/
+      run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@206.189.12.4 "sudo mv /var/www/dev.oooi.app/.tmp-env /var/www/dev.oooi.app/api/"
+      run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@206.189.12.4 "sudo rm /var/www/dev.oooi.app/.tmp-env"
