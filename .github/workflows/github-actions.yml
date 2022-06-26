@@ -39,6 +39,6 @@ jobs:
 
       - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@206.189.12.4 "sudo cp /var/www/dev.oooi.app/api/.env /var/www/dev.oooi.app/.tmp-env"
       - run: rsync -e "ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no" --archive --compress --delete . github-user@206.189.12.4:/var/www/dev.oooi.app/api/
+      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@206.189.12.4 "sudo mv /var/www/dev.oooi.app/.tmp-env /var/www/dev.oooi.app/api/.env"
       - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@206.189.12.4 "cd /var/www/dev.oooi.app/api && npm install"
       - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@206.189.12.4 "cd /var/www/dev.oooi.app/api && npm run build"
-      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@206.189.12.4 "sudo mv /var/www/dev.oooi.app/.tmp-env /var/www/dev.oooi.app/api/.env"
