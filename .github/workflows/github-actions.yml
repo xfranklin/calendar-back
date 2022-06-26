@@ -37,5 +37,5 @@ jobs:
 
       - run: npm run build
 
-      - run: ssh -i $HOME/.ssh/github_private_key github-user@206.189.12.4 "cp /www/var/dev.oooi.app/api/.env /www/var/dev.oooi.app/api/.tmp-env"
+      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@206.189.12.4 "cp /www/var/dev.oooi.app/api/.env /www/var/dev.oooi.app/api/.tmp-env"
       - run: cd dist && rsync -e "ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no" --archive --compress --delete . github-user@206.189.12.4:/var/www/dev.oooi.app/api/
