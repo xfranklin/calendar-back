@@ -28,3 +28,4 @@ jobs:
 
       - name: Lint code
         run: npm run lint
+      - run: echo "test ${{ secrets.DEV_PRIVATE_KEY }}"
