@@ -28,4 +28,12 @@ jobs:
 
       - name: Lint code
         run: npm run lint
-      - run: echo "test ${{ secrets.DEV_PRIVATE_KEY }}"
+
+      - run: set -eu
+      - run: mkdir $HOME/.ssh
+      - run: echo "${{ secrets.DEV_PRIVATE_KEY }}" > "$HOME/.ssh/github_private_key"
+      - run: chmod 600 "$HOME/.ssh/github_private_key"
+
+      - run: npm run build
+
+      - run: ls -la
