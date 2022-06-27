@@ -19,6 +19,7 @@ import { SocialsModule } from "./socials/socials.module";
         console.log("MONGO_URI", configService.get<string>("MONGO_URI"));
         return {
           uri: configService.get<string>("MONGO_URI"),
+          useNewUrlParser: true,
           useUnifiedTopology: true,
         };
       },
