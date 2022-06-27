@@ -16,7 +16,7 @@ import { SocialsModule } from "./socials/socials.module";
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>("MONGO_URI"),
+        uri: "mongodb://fuck:test123@localhost:27017/oooi-database?authSource=admin",
         useNewUrlParser: true,
         useUnifiedTopology: true,
       }),
