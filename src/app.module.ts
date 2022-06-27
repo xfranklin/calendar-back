@@ -8,6 +8,7 @@ import { UserModule } from "./user/user.module";
 import { MailSenderModule } from "./mailsender/mail-sender.module";
 import { SocialsModule } from "./socials/socials.module";
 
+console.log(process.env.MONGO_URI);
 @Module({
   imports: [
     ConfigModule.forRoot({
