@@ -8,7 +8,6 @@ import { UserModule } from "./user/user.module";
 import { MailSenderModule } from "./mailsender/mail-sender.module";
 import { SocialsModule } from "./socials/socials.module";
 
-console.log(process.env.MONGO_URI);
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,10 +15,13 @@ console.log(process.env.MONGO_URI);
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>("MONGO_URI"),
-        useUnifiedTopology: true,
-      }),
+      useFactory: (configService: ConfigService) => {
+        console.log("MONGO_URI", configService.get<string>("MONGO_URI"));
+        return {
+          uri: configService.get<string>("MONGO_URI"),
+          useUnifiedTopology: true,
+        };
+      },
       inject: [ConfigService],
     }),
     AuthModule,
