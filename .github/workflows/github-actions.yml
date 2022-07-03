@@ -36,8 +36,8 @@ jobs:
 
       - run: npm install
 
-      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@"${{secrets.API_ADDRESS}}" "sudo cp "${{secrets.API_DIRECTORY}}"/.env /var/www/dev.oooi.app/.tmp-env"
-      - run: rsync -e "ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no" --archive --compress --delete . github-user@${{secrets.API_ADDRESS}}:"${{secrets.API_DIRECTORY}}"
-      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@${{secrets.API_ADDRESS}} "sudo mv "${{secrets.API_DIRECTORY}}"/.tmp-env "${{secrets.API_DIRECTORY}}"/.env"
-      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@${{secrets.API_ADDRESS}} "cd "${{secrets.API_DIRECTORY}}" && npm install"
-      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@${{secrets.API_ADDRESS}} "cd "${{secrets.API_DIRECTORY}}" && npm run build"
+      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@"${{secrets.API_ADDRESS}}" "sudo cp /var/www/dev.oooi.app/api/.env /var/www/dev.oooi.app/.tmp-env"
+      - run: rsync -e "ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no" --archive --compress --delete . github-user@${{secrets.API_ADDRESS}}:/var/www/dev.oooi.app/api/
+      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user${{secrets.API_ADDRESS}} "sudo mv /var/www/dev.oooi.app/.tmp-env /var/www/dev.oooi.app/api/.env"
+      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@${{secrets.API_ADDRESS}} "cd /var/www/dev.oooi.app/api && npm install"
+      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@${{secrets.API_ADDRESS}} "cd /var/www/dev.oooi.app/api && npm run build"
