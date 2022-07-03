@@ -41,3 +41,4 @@ jobs:
       - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user${{secrets.API_ADDRESS}} "sudo mv /var/www/dev.oooi.app/.tmp-env /var/www/dev.oooi.app/api/.env"
       - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@${{secrets.API_ADDRESS}} "cd /var/www/dev.oooi.app/api && npm install"
       - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@${{secrets.API_ADDRESS}} "cd /var/www/dev.oooi.app/api && npm run build"
+      - run: ssh -i $HOME/.ssh/github_private_key -o StrictHostKeyChecking=no github-user@${{secrets.API_ADDRESS}} "cd /var/www/dev.oooi.app/api/dist && sudo pm2 start main.js --name 'oooi-api'"
