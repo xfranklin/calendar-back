@@ -56,7 +56,9 @@ export class JwtService {
     const token = jwt.sign(
       { type: "ACCESS", id: _id, email, role, isVerified },
       this.configService.get<string>("ACCESS_TOKEN_SECRET"),
-      { expiresIn: 60 },
+      {
+        expiresIn: Number(this.configService.get<string>("ACCESS_EXPIRATION")),
+      },
     );
     return token;
   }
@@ -65,7 +67,9 @@ export class JwtService {
     const token = jwt.sign(
       { type: "REFRESH", id: userId },
       this.configService.get<string>("REFRESH_TOKEN_SECRET"),
-      { expiresIn: 180 },
+      {
+        expiresIn: Number(this.configService.get<string>("REFRESH_EXPIRATION")),
+      },
     );
     const { refreshToken } = await this.refreshModel.create({
       userId,
@@ -120,7 +124,6 @@ export class JwtService {
     try {
       jwt.verify(token, this.configService.get<string>("ACCESS_TOKEN_SECRET"));
     } catch (e) {
-      console.log(e);
       if (e.name === "TokenExpiredError") {
         return;
       }

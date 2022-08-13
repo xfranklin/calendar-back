@@ -24,9 +24,11 @@ import { HttpModule } from "@nestjs/axios";
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(RecaptchaMiddleware).forRoutes(
-      // { path: "/auth/signup", method: RequestMethod.POST },
-      // { path: "/auth/login", method: RequestMethod.POST },
-    );
+    consumer
+      .apply(RecaptchaMiddleware)
+      .forRoutes(
+        { path: "/auth/signup", method: RequestMethod.POST },
+        { path: "/auth/login", method: RequestMethod.POST },
+      );
   }
 }

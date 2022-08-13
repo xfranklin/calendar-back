@@ -30,6 +30,7 @@ export class AuthGuard implements CanActivate {
     }
 
     const { cookies } = context.switchToHttp().getRequest();
+    console.log("COOKIES", cookies);
     const { ACCESS_TOKEN } = cookies;
     let userRole;
     try {

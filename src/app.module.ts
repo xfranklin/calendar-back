@@ -16,7 +16,6 @@ import { SocialsModule } from "./socials/socials.module";
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        console.log("MONGO_URI", configService.get<string>("MONGO_URI"));
         return {
           uri: configService.get<string>("MONGO_URI"),
           useNewUrlParser: true,

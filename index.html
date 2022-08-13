@@ -52,7 +52,7 @@ https://github.com/pure-css/pure/blob/master/LICENSE
     <button id="auth-google" class="pure-button pure-button-primary">Google</button>
     <button id="auth-facebook" class="pure-button pure-button-primary">Facebook</button>
 </div>
-<script src="https://www.google.com/recaptcha/api.js?render=6Lc9mvweAAAAAIXmnQCmiBmcIiVQAcw6e0bgSY5k"></script>
+<script src="https://www.google.com/recaptcha/api.js?render=6LfD6PUgAAAAAPvrfkq5X27nKBzZZ7oLCEDDYWX9"></script>
 <script>
     const signUp = document.getElementById("signup-form");
     const login = document.getElementById("login-form");
@@ -63,17 +63,16 @@ https://github.com/pure-css/pure/blob/master/LICENSE
     const authFacebook = document.getElementById("auth-facebook");
 
     refresh.addEventListener("click", async (e)=> {
-        fetch("http://localhost:3000/auth/refresh", {
-            method: "POST",
+        fetch("http://localhost:3000/api/auth/refresh", {
+            method: "GET",
             headers: {
                 "content-type": "application/json"
-            },
-            body: JSON.stringify({})
+            }
         })
     })
 
     logout.addEventListener("click", async (e)=> {
-        fetch("http://localhost:3000/auth/logout", {
+        fetch("http://localhost:3000/api/auth/logout", {
             method: "POST",
             headers: {
                 "content-type": "application/json"
@@ -87,14 +86,14 @@ https://github.com/pure-css/pure/blob/master/LICENSE
         const form = new FormData(e.target);
         const email = form.get("email");
         const password = form.get("password");
-        // const token = await window.grecaptcha.execute("6Lc9mvweAAAAAIXmnQCmiBmcIiVQAcw6e0bgSY5k", {action: 'submit'})
+        const token = await window.grecaptcha.execute("6LfD6PUgAAAAAPvrfkq5X27nKBzZZ7oLCEDDYWX9", {action: 'submit'})
 
-        fetch("http://localhost:3000/auth/signup",{
+        fetch("http://localhost:3000/api/auth/signup",{
             method: "POST",
             headers: {
                 "content-type": "application/json"
             },
-            body: JSON.stringify({email, password })
+            body: JSON.stringify({email, password, token })
         })
     })
 
@@ -103,9 +102,9 @@ https://github.com/pure-css/pure/blob/master/LICENSE
         const form = new FormData(e.target);
         const email = form.get("email");
         const password = form.get("password");
-        const token = await window.grecaptcha.execute("6Lc9mvweAAAAAIXmnQCmiBmcIiVQAcw6e0bgSY5k", {action: 'submit'})
+        const token = await window.grecaptcha.execute("6LfD6PUgAAAAAPvrfkq5X27nKBzZZ7oLCEDDYWX9", {action: 'submit'})
 
-        fetch("http://localhost:3000/auth/login",{
+        fetch("http://localhost:3000/api/auth/login",{
             method: "POST",
             headers: {
                 "content-type": "application/json"
@@ -118,7 +117,7 @@ https://github.com/pure-css/pure/blob/master/LICENSE
         e.preventDefault()
         const type = e.submitter.getAttribute("value");
 
-        const data = await fetch(`http://localhost:3000/user/${type}`,{
+        const data = await fetch(`http://localhost:3000/api/user/${type}`,{
             method: "POST",
             headers: {
                 "content-type": "application/json"
@@ -129,14 +128,14 @@ https://github.com/pure-css/pure/blob/master/LICENSE
     })
 
     authGoogle.addEventListener("click", async (e)=> {
-        const response = await fetch("http://localhost:3000/auth/social/google");
+        const response = await fetch("http://localhost:3000/api/auth/social/google");
         const {url} = await response.json();
         console.log("url",url);
         window.location = url;
     })
 
     authFacebook.addEventListener("click", async ()=> {
-       const response = await fetch("http://localhost:3000/auth/social/facebook")
+       const response = await fetch("http://localhost:3000/api/auth/social/facebook")
         const data = await response.json();
        window.location = data.url;
     })
