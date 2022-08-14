@@ -80,7 +80,7 @@ export class AuthService {
     response: Response,
   ) {
     if (request.cookies.GOOGLE_STATE !== state) {
-     return response.redirect(this.configService.get<string>("APP_URL"));
+      return response.redirect(this.configService.get<string>("APP_URL"));
     }
     const { id_token, access_token } =
       await this.socialsService.getGoogleTokens(code);
@@ -193,6 +193,7 @@ export class AuthService {
   ) {
     const access = this.jwtService.generateAccessToken(user);
     const refresh = await this.jwtService.generateRefreshToken(user._id);
-    this.jwtService.setCookies(access, refresh, response, redirect);
+    const { entrypoints, ...userData } = user;
+    this.jwtService.setCookies(access, refresh, response, redirect, userData);
   }
 }

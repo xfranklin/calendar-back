@@ -22,12 +22,15 @@ export class UserService {
     return await this.entrypointModel.create({ type, ...data });
   }
 
-  public async findEntrypointByClientId(type: EntrypointEnum, id: string): Promise<EntrypointType> {
+  public async findEntrypointByClientId(
+    type: EntrypointEnum,
+    id: string,
+  ): Promise<EntrypointType> {
     return this.entrypointModel.findOne({ type, clientId: id });
   }
 
   public async create(user: UserType): Promise<UserType> {
-    return await this.userModel.create(user);
+    return (await this.userModel.create(user)).toObject();
   }
 
   public async findUserById(id: string): Promise<UserType> {
@@ -35,7 +38,9 @@ export class UserService {
   }
 
   public async findUserByEmail(email: string): Promise<UserType> {
-    return this.userModel.findOne({ email }).populate("entrypoints");
+    return (
+      await this.userModel.findOne({ email }).populate("entrypoints")
+    ).toObject();
   }
 
   public async findUserByEntryPoint(id: string): Promise<UserType> {

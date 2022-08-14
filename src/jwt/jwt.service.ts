@@ -22,6 +22,7 @@ export class JwtService {
     refresh: string,
     response: Response,
     redirect?: boolean,
+    user?: UserType,
   ) {
     response
       .cookie("ACCESS_TOKEN", access, {
@@ -35,7 +36,9 @@ export class JwtService {
     if (redirect) {
       response.redirect(this.configService.get<string>("APP_URL"));
     } else {
-      response.status(HttpStatus.OK).json({ status: HttpStatus.OK });
+      response
+        .status(HttpStatus.OK)
+        .json({ status: HttpStatus.OK, ...(user && user) });
     }
   }
 
