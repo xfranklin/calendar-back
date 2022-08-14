@@ -38,7 +38,7 @@ export class JwtService {
     } else {
       response
         .status(HttpStatus.OK)
-        .json({ status: HttpStatus.OK, ...(user && user) });
+        .json({ status: HttpStatus.OK, ...(user && { user }) });
     }
   }
 
