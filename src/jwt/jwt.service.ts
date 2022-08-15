@@ -27,11 +27,9 @@ export class JwtService {
     response
       .cookie("ACCESS_TOKEN", access, {
         httpOnly: true,
-        domain: "localhost",
       })
       .cookie("REFRESH_TOKEN", refresh, {
         httpOnly: true,
-        domain: "localhost",
       });
     if (redirect) {
       response.redirect(this.configService.get<string>("APP_URL"));
