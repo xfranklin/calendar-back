@@ -90,6 +90,7 @@ export class AuthService {
           .split("|")
           .find((domain) => domain === stateData.redirect_uri) ||
         this.configService.get<string>("APP_URL");
+      console.log("googleAuth", redirectUrl);
 
       const { id_token, access_token } =
         await this.socialsService.getGoogleTokens(code);
