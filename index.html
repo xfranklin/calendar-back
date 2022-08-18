@@ -128,9 +128,8 @@ https://github.com/pure-css/pure/blob/master/LICENSE
     })
 
     authGoogle.addEventListener("click", async (e)=> {
-        const response = await fetch("http://localhost:3000/api/auth/social/google");
+        const response = await fetch("http://localhost:3000/api/auth/social/google?redirect_uri=http://localhost:3000/api");
         const {url} = await response.json();
-        console.log("url",url);
         window.location = url;
     })
 

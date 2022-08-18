@@ -21,7 +21,7 @@ export class JwtService {
     access: string,
     refresh: string,
     response: Response,
-    redirect?: boolean,
+    redirectUrl?: string,
     user?: UserType,
   ) {
     response
@@ -31,8 +31,8 @@ export class JwtService {
       .cookie("REFRESH_TOKEN", refresh, {
         httpOnly: true,
       });
-    if (redirect) {
-      response.redirect(this.configService.get<string>("APP_URL"));
+    if (redirectUrl) {
+      return response.redirect(redirectUrl);
     } else {
       response
         .status(HttpStatus.OK)
@@ -42,8 +42,8 @@ export class JwtService {
 
   public clearCookies(response: Response) {
     response
-      .clearCookie("ACCESS_TOKEN", { httpOnly: true, domain: "localhost" })
-      .clearCookie("REFRESH_TOKEN", { httpOnly: true, domain: "localhost" })
+      .clearCookie("ACCESS_TOKEN", { httpOnly: true })
+      .clearCookie("REFRESH_TOKEN", { httpOnly: true })
       .status(HttpStatus.OK)
       .json({ status: HttpStatus.OK });
   }

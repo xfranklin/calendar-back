@@ -15,10 +15,13 @@ export class SocialsService {
   // ╔═╗╔═╗╔═╗╔═╗╦  ╔═╗  ╔═╗╦ ╦╔╦╗╦ ╦
   // ║ ╦║ ║║ ║║ ╦║  ║╣   ╠═╣║ ║ ║ ╠═╣
   // ╚═╝╚═╝╚═╝╚═╝╩═╝╚═╝  ╩ ╩╚═╝ ╩ ╩ ╩
-  getGoogleAuthUrl(response: Response) {
+  getGoogleAuthUrl(response: Response, redirectUrl: string) {
     const CLIENT_ID = this.configService.get<string>("GOOGLE_CLIENT_ID");
     const REDIRECT_URL = this.configService.get<string>("GOOGLE_REDIRECT_URL");
-    const STATE = Math.random().toString(36).substring(2, 15);
+    const RANDOM_STRING = Math.random().toString(36).substring(2, 15);
+    const STATE = Buffer.from(
+      JSON.stringify({ random: RANDOM_STRING, redirect_uri: redirectUrl }),
+    ).toString("base64");
     const SCOPE = [
       "profile",
       "email",
@@ -114,7 +117,9 @@ export class SocialsService {
   }
 
   async getFacebookUserInfo(access_token: string) {
-    const FIELDS = ["id", "email", "birthday", "first_name", "last_name"].join(",");
+    const FIELDS = ["id", "email", "birthday", "first_name", "last_name"].join(
+      ",",
+    );
     const url = `https://graph.facebook.com/v13.0/me?fields=${FIELDS}&access_token=${access_token}`;
     const response = await lastValueFrom(
       this.httpService.get(url).pipe(map((resp) => resp.data)),

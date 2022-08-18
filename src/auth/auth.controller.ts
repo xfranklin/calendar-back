@@ -33,8 +33,11 @@ export class AuthController {
   }
 
   @Get("social/google")
-  async getGoogleUrl(@Res() response: Response) {
-    return this.socialsService.getGoogleAuthUrl(response);
+  async getGoogleUrl(
+    @Query("redirect_uri") redirectUrl,
+    @Res() response: Response,
+  ) {
+    return this.socialsService.getGoogleAuthUrl(response, redirectUrl);
   }
 
   @Get("social/facebook")

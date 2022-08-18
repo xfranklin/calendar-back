@@ -82,39 +82,51 @@ export class AuthService {
     if (request.cookies.GOOGLE_STATE !== state) {
       return response.redirect(this.configService.get<string>("APP_URL"));
     }
-    const { id_token, access_token } =
-      await this.socialsService.getGoogleTokens(code);
-    const { sub, email } = JSON.parse(
-      Buffer.from(id_token.split(".")[1], "base64").toString(),
-    );
-    const user = await this.userService.findUserByEmail(email);
-    if (user) {
-      const hasEntrypoint = user.entrypoints.find(
-        ({ clientId }) => clientId === sub,
+    try {
+      const stateData = JSON.parse(Buffer.from(state, "base64").toString());
+      const redirectUrl =
+        this.configService
+          .get<string>("DOMAINS_WHITE_LIST")
+          .split("|")
+          .find((domain) => domain === stateData.redirect_uri) ||
+        this.configService.get<string>("APP_URL");
+
+      const { id_token, access_token } =
+        await this.socialsService.getGoogleTokens(code);
+      const { sub, email } = JSON.parse(
+        Buffer.from(id_token.split(".")[1], "base64").toString(),
       );
-      if (hasEntrypoint) {
-        await this.setCookies(user, response, true);
+      const user = await this.userService.findUserByEmail(email);
+      if (user) {
+        const hasEntrypoint = user.entrypoints.find(
+          ({ clientId }) => clientId === sub,
+        );
+        if (hasEntrypoint) {
+          await this.setCookies(user, response, redirectUrl);
+        } else {
+          response.redirect(this.configService.get<string>(redirectUrl));
+        }
       } else {
-        response.redirect(this.configService.get<string>("APP_URL"));
+        const { given_name, family_name } =
+          await this.socialsService.getGoogleUserInfo(access_token);
+        const birthday = await this.socialsService.getGoogleUserBirthday(
+          access_token,
+        );
+        const { _id } = await this.userService.createEntrypoint(
+          EntrypointEnum.GOOGLE,
+          { clientId: sub, email },
+        );
+        const newUser = await this.userService.create({
+          email,
+          birthday,
+          entrypoints: [_id],
+          firstName: given_name,
+          lastName: family_name,
+        });
+        await this.setCookies(newUser, response, redirectUrl);
       }
-    } else {
-      const { given_name, family_name } =
-        await this.socialsService.getGoogleUserInfo(access_token);
-      const birthday = await this.socialsService.getGoogleUserBirthday(
-        access_token,
-      );
-      const { _id } = await this.userService.createEntrypoint(
-        EntrypointEnum.GOOGLE,
-        { clientId: sub, email },
-      );
-      const newUser = await this.userService.create({
-        email,
-        birthday,
-        entrypoints: [_id],
-        firstName: given_name,
-        lastName: family_name,
-      });
-      await this.setCookies(newUser, response, true);
+    } catch {
+      response.redirect(this.configService.get<string>("APP_URL"));
     }
   }
 
@@ -143,7 +155,8 @@ export class AuthService {
           entrypoint?._id,
         );
         if (user) {
-          return await this.setCookies(user, response, true);
+          // TODO FIX
+          return await this.setCookies(user, response, this.configService.get<string>("APP_URL"));
         }
       } else {
         const { _id } = await this.userService.createEntrypoint(
@@ -157,7 +170,8 @@ export class AuthService {
           ...(first_name && { firstName: first_name }),
           ...(last_name && { lastName: last_name }),
         });
-        return await this.setCookies(newUser, response, true);
+        // TODO FIX
+        return await this.setCookies(newUser, response, this.configService.get<string>("APP_URL"));
       }
     }
     response.redirect(this.configService.get<string>("APP_URL"));
@@ -189,11 +203,11 @@ export class AuthService {
   private async setCookies(
     user: UserType,
     response: Response,
-    redirect?: boolean,
+    redirectUrl?: string,
   ) {
     const access = this.jwtService.generateAccessToken(user);
     const refresh = await this.jwtService.generateRefreshToken(user._id);
     const { entrypoints, ...userData } = user;
-    this.jwtService.setCookies(access, refresh, response, redirect, userData);
+    this.jwtService.setCookies(access, refresh, response, redirectUrl, userData);
   }
 }
