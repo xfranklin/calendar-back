@@ -30,7 +30,7 @@ export class UserService {
   }
 
   public async create(user: UserType): Promise<UserType> {
-    return (await this.userModel.create(user)).toObject();
+    return (await this.userModel.create(user))?.toObject();
   }
 
   public async findUserById(id: string): Promise<UserType> {
@@ -40,7 +40,7 @@ export class UserService {
   public async findUserByEmail(email: string): Promise<UserType> {
     return (
       await this.userModel.findOne({ email }).populate("entrypoints")
-    ).toObject();
+    )?.toObject();
   }
 
   public async findUserByEntryPoint(id: string): Promise<UserType> {

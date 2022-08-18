@@ -29,7 +29,6 @@ export class SocialsService {
     response
       .cookie("GOOGLE_STATE", STATE, {
         httpOnly: true,
-        domain: "localhost",
       })
       .status(HttpStatus.OK)
       .json({ url });
