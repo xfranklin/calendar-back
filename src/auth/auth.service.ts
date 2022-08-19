@@ -126,7 +126,8 @@ export class AuthService {
         });
         await this.setCookies(newUser, response, redirectUrl);
       }
-    } catch {
+    } catch (e) {
+      console.log(e);
       response.redirect(this.configService.get<string>("APP_URL"));
     }
   }
