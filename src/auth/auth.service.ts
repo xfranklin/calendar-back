@@ -107,7 +107,7 @@ export class AuthService {
         if (hasEntrypoint) {
           await this.setCookies(user, response, redirectUrl);
         } else {
-          response.redirect(this.configService.get<string>(redirectUrl));
+          response.redirect(redirectUrl);
         }
       } else {
         const { given_name, family_name } =

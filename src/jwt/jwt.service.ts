@@ -27,9 +27,11 @@ export class JwtService {
     response
       .cookie("ACCESS_TOKEN", access, {
         httpOnly: true,
+        ...(redirectUrl && { domain: redirectUrl }),
       })
       .cookie("REFRESH_TOKEN", refresh, {
         httpOnly: true,
+        ...(redirectUrl && { domain: redirectUrl }),
       });
     if (redirectUrl) {
       return response.redirect(redirectUrl);
