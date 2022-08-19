@@ -79,9 +79,10 @@ export class AuthService {
     request: Request,
     response: Response,
   ) {
-    if (request.cookies.GOOGLE_STATE !== state) {
-      console.log(request.cookies.GOOGLE_STATE);
-      console.log(JSON.parse(Buffer.from(state, "base64").toString()));
+    if (
+      request.cookies.GOOGLE_STATE !== state &&
+      this.configService.get<string>("NODE_ENV") === "production"
+    ) {
       return response.redirect(this.configService.get<string>("APP_URL"));
     }
     try {
@@ -92,7 +93,6 @@ export class AuthService {
           .split("|")
           .find((domain) => domain === stateData.redirect_uri) ||
         this.configService.get<string>("APP_URL");
-      console.log("googleAuth", redirectUrl);
 
       const { id_token, access_token } =
         await this.socialsService.getGoogleTokens(code);
@@ -159,7 +159,11 @@ export class AuthService {
         );
         if (user) {
           // TODO FIX
-          return await this.setCookies(user, response, this.configService.get<string>("APP_URL"));
+          return await this.setCookies(
+            user,
+            response,
+            this.configService.get<string>("APP_URL"),
+          );
         }
       } else {
         const { _id } = await this.userService.createEntrypoint(
@@ -174,7 +178,11 @@ export class AuthService {
           ...(last_name && { lastName: last_name }),
         });
         // TODO FIX
-        return await this.setCookies(newUser, response, this.configService.get<string>("APP_URL"));
+        return await this.setCookies(
+          newUser,
+          response,
+          this.configService.get<string>("APP_URL"),
+        );
       }
     }
     response.redirect(this.configService.get<string>("APP_URL"));
@@ -211,6 +219,12 @@ export class AuthService {
     const access = this.jwtService.generateAccessToken(user);
     const refresh = await this.jwtService.generateRefreshToken(user._id);
     const { entrypoints, ...userData } = user;
-    this.jwtService.setCookies(access, refresh, response, redirectUrl, userData);
+    this.jwtService.setCookies(
+      access,
+      refresh,
+      response,
+      redirectUrl,
+      userData,
+    );
   }
 }
