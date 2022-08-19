@@ -91,7 +91,6 @@ export class AuthService {
           .find((domain) => domain === stateData.redirect_uri) ||
         this.configService.get<string>("APP_URL");
 
-      console.log("redirectURL", redirectUrl);
       const { id_token, access_token } =
         await this.socialsService.getGoogleTokens(code);
       const { sub, email } = JSON.parse(
