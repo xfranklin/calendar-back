@@ -80,7 +80,6 @@ export class AuthService {
     response: Response,
   ) {
     if (request.cookies.GOOGLE_STATE !== state) {
-      console.log("MISMATCH");
       return response.redirect(this.configService.get<string>("APP_URL"));
     }
     try {
@@ -93,7 +92,7 @@ export class AuthService {
         this.configService.get<string>("APP_URL");
 
       const { id_token, access_token } =
-        await this.socialsService.getGoogleTokens(code);
+        await this.socialsService.getGoogleTokens(code, redirectUrl);
       const { sub, email } = JSON.parse(
         Buffer.from(id_token.split(".")[1], "base64").toString(),
       );
@@ -126,8 +125,7 @@ export class AuthService {
         });
         await this.setCookies(newUser, response, redirectUrl);
       }
-    } catch (e) {
-      console.log(e);
+    } catch {
       response.redirect(this.configService.get<string>("APP_URL"));
     }
   }

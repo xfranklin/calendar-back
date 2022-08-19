@@ -32,7 +32,6 @@ export class JwtService {
         httpOnly: true,
       });
     if (redirectUrl) {
-      console.log("jwt", redirectUrl)
       return response.redirect(redirectUrl);
     } else {
       response

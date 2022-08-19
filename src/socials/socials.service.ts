@@ -37,10 +37,10 @@ export class SocialsService {
       .json({ url });
   }
 
-  async getGoogleTokens(code): Promise<GoogleOauthResponseType> {
+  async getGoogleTokens(code, redirectUrl): Promise<GoogleOauthResponseType> {
     const CLIENT_ID = this.configService.get<string>("GOOGLE_CLIENT_ID");
     const SECRET_KEY = this.configService.get<string>("GOOGLE_CLIENT_SECRET");
-    const REDIRECT_URL = this.configService.get<string>("GOOGLE_REDIRECT_URL");
+    const REDIRECT_URL = `${redirectUrl}/api/auth/social/google-response`;
     const url = `https://oauth2.googleapis.com/token`;
     const body = {
       code,
