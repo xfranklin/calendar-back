@@ -17,7 +17,7 @@ export class SocialsService {
   // ╚═╝╚═╝╚═╝╚═╝╩═╝╚═╝  ╩ ╩╚═╝ ╩ ╩ ╩
   getGoogleAuthUrl(response: Response, redirectUrl: string) {
     const CLIENT_ID = this.configService.get<string>("GOOGLE_CLIENT_ID");
-    const REDIRECT_URL = `${redirectUrl}/auth/social/google-response`;
+    const REDIRECT_URL = `${redirectUrl}/api/auth/social/google-response`;
     const RANDOM_STRING = Math.random().toString(36).substring(2, 15);
     const STATE = Buffer.from(
       JSON.stringify({ random: RANDOM_STRING, redirect_uri: redirectUrl }),
