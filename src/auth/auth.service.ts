@@ -80,6 +80,7 @@ export class AuthService {
     response: Response,
   ) {
     if (request.cookies.GOOGLE_STATE !== state) {
+      console.log("MISMATCH");
       return response.redirect(this.configService.get<string>("APP_URL"));
     }
     try {
