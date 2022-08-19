@@ -79,10 +79,7 @@ export class AuthService {
     request: Request,
     response: Response,
   ) {
-    if (
-      request.cookies.GOOGLE_STATE !== state &&
-      this.configService.get<string>("NODE_ENV") === "production"
-    ) {
+    if (request.cookies.GOOGLE_STATE !== state) {
       return response.redirect(this.configService.get<string>("APP_URL"));
     }
     try {
