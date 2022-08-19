@@ -80,7 +80,7 @@ export class AuthService {
     response: Response,
   ) {
     if (request.cookies.GOOGLE_STATE !== state) {
-      console.log(JSON.parse(Buffer.from(request.cookies.GOOGLE_STATE, "base64").toString()));
+      console.log(request.cookies.GOOGLE_STATE);
       console.log(JSON.parse(Buffer.from(state, "base64").toString()));
       return response.redirect(this.configService.get<string>("APP_URL"));
     }
