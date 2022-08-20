@@ -22,6 +22,7 @@ export class RecaptchaMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const { body }: { body: { token: string } } = req;
+    console.log("token", body.token);
     if (body.token) {
       const url = `${API}?secret=${this.configService.get<string>(
         "RECAPTCHA_SECRET",
@@ -29,6 +30,7 @@ export class RecaptchaMiddleware implements NestMiddleware {
       const response: RecaptchaType = await lastValueFrom(
         this.httpService.post(url).pipe(map((resp) => resp.data)),
       );
+      console.log("RESPONSE", response);
       if (response.success && response.score >= THRESHOLD) {
         delete req.body.token;
         next();
