@@ -15,6 +15,19 @@ export class UserService {
     private readonly entrypointModel: Model<EntrypointDocument>,
   ) {}
 
+  // ┌┬┐┌─┐
+  // │││├┤
+  // ┴ ┴└─┘
+  public async me(id: string): Promise<UserType> {
+    const { entrypoints, ...userData } = await this.findUserById(id);
+    return userData;
+  }
+
+  // ********************************************
+  // ╔═╗╦═╗╦╦  ╦╔═╗╔╦╗╔═╗  ╔╦╗╔═╗╔╦╗╦ ╦╔═╗╔╦╗╔═╗
+  // ╠═╝╠╦╝║╚╗╔╝╠═╣ ║ ║╣   ║║║║╣  ║ ╠═╣║ ║ ║║╚═╗
+  // ╩  ╩╚═╩ ╚╝ ╩ ╩ ╩ ╚═╝  ╩ ╩╚═╝ ╩ ╩ ╩╚═╝═╩╝╚═╝
+  // ********************************************
   public async createEntrypoint(
     type: EntrypointEnum,
     data: EntrypointType,
@@ -34,7 +47,7 @@ export class UserService {
   }
 
   public async findUserById(id: string): Promise<UserType> {
-    return this.userModel.findById(id);
+    return (await this.userModel.findById(id))?.toObject();
   }
 
   public async findUserByEmail(email: string): Promise<UserType> {

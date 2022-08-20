@@ -1,4 +1,4 @@
-import { Post, Controller, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "../guards/auth.guard";
 import { NoAuth } from "../decorators/no-auth.decorator";
 import { Roles } from "../decorators/roles.decorator";
@@ -9,6 +9,12 @@ import { UserService } from "./user.service";
 @UseGuards(AuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Get("me")
+  @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
+  me(@Req() request) {
+    return this.userService.me(request?.user.id);
+  }
 
   @Post("all")
   @NoAuth()

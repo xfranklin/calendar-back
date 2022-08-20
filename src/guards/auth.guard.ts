@@ -31,13 +31,12 @@ export class AuthGuard implements CanActivate {
 
     const { cookies } = context.switchToHttp().getRequest();
     const { ACCESS_TOKEN } = cookies;
-    let userRole;
+    let jwtData;
     try {
-      const { role } = jwt.verify(
+      jwtData = jwt.verify(
         ACCESS_TOKEN,
         this.configService.get<string>("ACCESS_TOKEN_SECRET"),
       );
-      userRole = role;
     } catch (e) {
       throw new HttpException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
     }
@@ -46,7 +45,10 @@ export class AuthGuard implements CanActivate {
       "roles",
       context.getHandler(),
     );
-    if (allowRoles.includes(userRole)) {
+    if (allowRoles.includes(jwtData.role)) {
+      const request = context.switchToHttp().getRequest();
+      const { role, id, email } = jwtData;
+      request.user = { role, id, email };
       return true;
     } else {
       throw new HttpException("WITHOUT_PERMISSION", HttpStatus.BAD_REQUEST);

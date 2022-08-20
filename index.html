@@ -52,11 +52,15 @@ https://github.com/pure-css/pure/blob/master/LICENSE
     <button id="auth-google" class="pure-button pure-button-primary">Google</button>
     <button id="auth-facebook" class="pure-button pure-button-primary">Facebook</button>
 </div>
+<div style="margin: 20px 0">
+    <button id="me" type="submit" class="pure-button pure-button-primary">Me</button>
+</div>
 <script src="https://www.google.com/recaptcha/api.js?render=6LfD6PUgAAAAAPvrfkq5X27nKBzZZ7oLCEDDYWX9"></script>
 <script>
     const signUp = document.getElementById("signup-form");
     const login = document.getElementById("login-form");
     const auth = document.getElementById("auth-form");
+    const me = document.getElementById("me");
     const refresh = document.getElementById("refresh-button");
     const logout = document.getElementById("logout-button");
     const authGoogle = document.getElementById("auth-google");
@@ -137,6 +141,12 @@ https://github.com/pure-css/pure/blob/master/LICENSE
        const response = await fetch("http://localhost:3000/api/auth/social/facebook")
         const data = await response.json();
        window.location = data.url;
+    })
+
+    me.addEventListener("click", async () => {
+        const response = await fetch("http://localhost:3000/api/user/me")
+        const data = await response.json();
+        console.log(data);
     })
 
 </script>
