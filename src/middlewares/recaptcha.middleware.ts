@@ -10,7 +10,7 @@ import { lastValueFrom, map } from "rxjs";
 import { Request, Response, NextFunction } from "express";
 import { RecaptchaType } from "../types/recaptcha.type";
 
-const THRESHOLD = 0.5;
+const THRESHOLD = 0.9;
 const API = "https://www.google.com/recaptcha/api/siteverify";
 
 @Injectable()
