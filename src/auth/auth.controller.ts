@@ -41,8 +41,11 @@ export class AuthController {
   }
 
   @Get("social/facebook")
-  async getFacebookUrl(@Res() response: Response) {
-    return this.socialsService.getFacebookAuthUrl(response);
+  async getFacebookUrl(
+    @Query("redirect_uri") redirectUrl,
+    @Res() response: Response,
+  ) {
+    return this.socialsService.getFacebookAuthUrl(response, redirectUrl);
   }
 
   @Get("social/google-response")

@@ -142,47 +142,53 @@ export class AuthService {
     if (request.cookies.FACEBOOK_STATE !== state) {
       return response.redirect(this.configService.get<string>("APP_URL"));
     }
-    const { access_token } = await this.socialsService.getFacebookTokens(code);
-    const { id, email, birthday, first_name, last_name } =
-      await this.socialsService.getFacebookUserInfo(access_token);
-    if (id) {
-      const entrypoint = await this.userService.findEntrypointByClientId(
-        EntrypointEnum.FACEBOOK,
-        id,
+    try {
+      const stateData = JSON.parse(Buffer.from(state, "base64").toString());
+      const redirectUrl =
+        this.configService
+          .get<string>("DOMAINS_WHITE_LIST")
+          .split("|")
+          .find((domain) => domain === stateData.redirect_uri) ||
+        this.configService.get<string>("APP_URL");
+
+      const { access_token } = await this.socialsService.getFacebookTokens(
+        code,
+        redirectUrl,
       );
-      if (entrypoint?._id) {
-        const user = await this.userService.findUserByEntryPoint(
-          entrypoint?._id,
+      const { id, email, birthday, first_name, last_name } =
+        await this.socialsService.getFacebookUserInfo(access_token);
+      if (id) {
+        const entrypoint = await this.userService.findEntrypointByClientId(
+          EntrypointEnum.FACEBOOK,
+          id,
         );
-        if (user) {
-          // TODO FIX
-          return await this.setCookies(
-            user,
-            response,
-            this.configService.get<string>("APP_URL"),
+        if (entrypoint?._id) {
+          const user = await this.userService.findUserByEntryPoint(
+            entrypoint?._id,
           );
+          if (user) {
+            return await this.setCookies(user, response, redirectUrl);
+          }
+        } else {
+          const { _id } = await this.userService.createEntrypoint(
+            EntrypointEnum.FACEBOOK,
+            { clientId: id, ...(email && { email }) },
+          );
+          const newUser = await this.userService.create({
+            entrypoints: [_id],
+            ...(birthday && { birthday: new Date(birthday) }),
+            ...(email && { email }),
+            ...(first_name && { firstName: first_name }),
+            ...(last_name && { lastName: last_name }),
+          });
+          return await this.setCookies(newUser, response, redirectUrl);
         }
       } else {
-        const { _id } = await this.userService.createEntrypoint(
-          EntrypointEnum.FACEBOOK,
-          { clientId: id, ...(email && { email }) },
-        );
-        const newUser = await this.userService.create({
-          entrypoints: [_id],
-          ...(birthday && { birthday: new Date(birthday) }),
-          ...(email && { email }),
-          ...(first_name && { firstName: first_name }),
-          ...(last_name && { lastName: last_name }),
-        });
-        // TODO FIX
-        return await this.setCookies(
-          newUser,
-          response,
-          this.configService.get<string>("APP_URL"),
-        );
+        response.redirect(redirectUrl);
       }
+    } catch {
+      response.redirect(this.configService.get<string>("APP_URL"));
     }
-    response.redirect(this.configService.get<string>("APP_URL"));
   }
 
   // ┬─┐┌─┐┌─┐┬─┐┌─┐┌─┐┬ ┬

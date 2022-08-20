@@ -85,30 +85,28 @@ export class SocialsService {
   // ╔═╗╔═╗╔═╗╔═╗╔╗ ╔═╗╔═╗╦╔═  ╔═╗╦ ╦╔╦╗╦ ╦
   // ╠╣ ╠═╣║  ║╣ ╠╩╗║ ║║ ║╠╩╗  ╠═╣║ ║ ║ ╠═╣
   // ╚  ╩ ╩╚═╝╚═╝╚═╝╚═╝╚═╝╩ ╩  ╩ ╩╚═╝ ╩ ╩ ╩
-  async getFacebookAuthUrl(response: Response) {
+  async getFacebookAuthUrl(response: Response, redirectUrl: string) {
     const CLIENT_ID = this.configService.get<string>("FACEBOOK_CLIENT_ID");
-    const REDIRECT_URL = this.configService.get<string>(
-      "FACEBOOK_REDIRECT_URL",
-    );
-    const STATE = Math.random().toString(36).substring(2, 15);
+    const REDIRECT_URL = `${redirectUrl}/api/auth/social/facebook-response`;
+    const RANDOM_STRING = Math.random().toString(36).substring(2, 15);
+    const STATE = Buffer.from(
+      JSON.stringify({ random: RANDOM_STRING, redirect_uri: redirectUrl }),
+    ).toString("base64");
     const SCOPE = ["email", "user_birthday"].join("+");
 
     const url = `https://www.facebook.com/v13.0/dialog/oauth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URL}&state=${STATE}&response_type=code&scope=${SCOPE}`;
     response
       .cookie("FACEBOOK_STATE", STATE, {
         httpOnly: true,
-        domain: "localhost",
       })
       .status(HttpStatus.OK)
       .json({ url });
   }
 
-  async getFacebookTokens(code: string) {
+  async getFacebookTokens(code: string, redirectUrl: string) {
     const CLIENT_ID = this.configService.get<string>("FACEBOOK_CLIENT_ID");
     const SECRET_KEY = this.configService.get<string>("FACEBOOK_CLIENT_SECRET");
-    const REDIRECT_URL = this.configService.get<string>(
-      "FACEBOOK_REDIRECT_URL",
-    );
+    const REDIRECT_URL = `${redirectUrl}/api/auth/social/facebook-response`;
     const url = `https://graph.facebook.com/v13.0/oauth/access_token?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URL}&client_secret=${SECRET_KEY}&code=${code}`;
     const response = await lastValueFrom(
       this.httpService.get(url).pipe(map((resp) => resp.data)),
