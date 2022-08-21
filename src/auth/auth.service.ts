@@ -123,6 +123,7 @@ export class AuthService {
           entrypoints: [_id],
           firstName: given_name,
           lastName: family_name,
+          isVerified: true,
         });
         await this.setCookies(newUser, response, redirectUrl);
       }
@@ -181,6 +182,7 @@ export class AuthService {
             ...(email && { email }),
             ...(first_name && { firstName: first_name }),
             ...(last_name && { lastName: last_name }),
+            isVerified: !!email,
           });
           return await this.setCookies(newUser, response, redirectUrl);
         }
