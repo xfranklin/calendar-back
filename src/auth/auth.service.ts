@@ -9,6 +9,7 @@ import { LoginDto } from "./dto/login.dto";
 import { EntrypointEnum } from "../user/types/entrypoints.enum";
 import { SocialsService } from "../socials/socials.service";
 import { ConfigService } from "@nestjs/config";
+import { getUser } from "../user/helpers/getUser";
 
 @Injectable()
 export class AuthService {
@@ -221,7 +222,7 @@ export class AuthService {
   ) {
     const access = this.jwtService.generateAccessToken(user);
     const refresh = await this.jwtService.generateRefreshToken(user._id);
-    const { entrypoints, ...userData } = user;
+    const userData = getUser(user);
     this.jwtService.setCookies(
       access,
       refresh,

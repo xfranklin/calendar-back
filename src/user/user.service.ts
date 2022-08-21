@@ -6,6 +6,7 @@ import { UserType } from "./types/user.type";
 import { Entrypoint, EntrypointDocument } from "./shemas/entrypoint.shema";
 import { EntrypointEnum } from "./types/entrypoints.enum";
 import { EntrypointType } from "./types/entrypoint.type";
+import { getUser } from "./helpers/getUser";
 
 @Injectable()
 export class UserService {
@@ -19,8 +20,8 @@ export class UserService {
   // │││├┤
   // ┴ ┴└─┘
   public async me(id: string): Promise<UserType> {
-    const { entrypoints, ...userData } = await this.findUserById(id);
-    return userData;
+    const user = await this.findUserById(id);
+    return getUser(user);
   }
 
   // ********************************************

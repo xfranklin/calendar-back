@@ -5,7 +5,7 @@ import { Entrypoint } from "./entrypoint.shema";
 
 @Schema({ versionKey: false })
 export class User {
-  @Prop({ unique: true, default: null })
+  @Prop({ unique: true })
   email: string;
 
   @Prop({ default: RoleEnum.USER })
