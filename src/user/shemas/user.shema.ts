@@ -20,10 +20,10 @@ export class User {
   @Prop({ default: false })
   isOnboarded: boolean;
 
-  @Prop({ default: "" })
+  @Prop({ default: null })
   firstName: string;
 
-  @Prop({ default: "" })
+  @Prop({ default: null })
   lastName: string;
 
   @Prop({ default: null })
