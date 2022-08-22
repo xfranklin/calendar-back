@@ -159,35 +159,37 @@ export class AuthService {
       );
       const { id, email, birthday, first_name, last_name } =
         await this.socialsService.getFacebookUserInfo(access_token);
-      if (id) {
-        const entrypoint = await this.userService.findEntrypointByClientId(
-          EntrypointEnum.FACEBOOK,
-          id,
+
+      const entrypoint = await this.userService.findEntrypointByClientId(
+        EntrypointEnum.FACEBOOK,
+        id,
+      );
+
+      if (entrypoint?._id) {
+        const user = await this.userService.findUserByEntryPoint(
+          entrypoint?._id,
         );
-        if (entrypoint?._id) {
-          const user = await this.userService.findUserByEntryPoint(
-            entrypoint?._id,
-          );
-          if (user) {
-            return await this.setCookies(user, response, redirectUrl);
-          }
-        } else {
-          const { _id } = await this.userService.createEntrypoint(
-            EntrypointEnum.FACEBOOK,
-            { clientId: id, ...(email && { email }) },
-          );
-          const newUser = await this.userService.create({
-            entrypoints: [_id],
-            ...(birthday && { birthday: new Date(birthday) }),
-            ...(email && { email }),
-            ...(first_name && { firstName: first_name }),
-            ...(last_name && { lastName: last_name }),
-            isVerified: !!email,
-          });
-          return await this.setCookies(newUser, response, redirectUrl);
-        }
+        return await this.setCookies(user, response, redirectUrl);
       } else {
-        response.redirect(redirectUrl);
+        if (email) {
+          const isExist = await this.userService.isEmailExist(email);
+          if (isExist) {
+            return response.redirect(redirectUrl);
+          }
+        }
+        const { _id } = await this.userService.createEntrypoint(
+          EntrypointEnum.FACEBOOK,
+          { clientId: id, ...(email && { email }) },
+        );
+        const newUser = await this.userService.create({
+          entrypoints: [_id],
+          ...(birthday && { birthday: new Date(birthday) }),
+          ...(email && { email }),
+          ...(first_name && { firstName: first_name }),
+          ...(last_name && { lastName: last_name }),
+          isVerified: !!email,
+        });
+        return await this.setCookies(newUser, response, redirectUrl);
       }
     } catch {
       response.redirect(this.configService.get<string>("APP_URL"));
