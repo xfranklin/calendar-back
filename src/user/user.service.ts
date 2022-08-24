@@ -24,6 +24,26 @@ export class UserService {
     return getUser(user);
   }
 
+  // ┌─┐┌┐┌┌┐ ┌─┐┌─┐┬─┐┌┬┐┬┌┐┌┌─┐
+  // │ ││││├┴┐│ │├─┤├┬┘ │││││││ ┬
+  // └─┘┘└┘└─┘└─┘┴ ┴┴└──┴┘┴┘└┘└─┘
+  public async onboard(id: string, personalInfo) {
+    const birthday = new Date(personalInfo.birthday);
+    const updatedUser: UserType = (
+      await this.userModel.findByIdAndUpdate(
+        id,
+        {
+          ...personalInfo,
+          birthday,
+          isOnboarded: true,
+        },
+        { new: true },
+      )
+    ).toObject();
+    // TO DO SEND CONFIRM EMAIL
+    return getUser(updatedUser);
+  }
+
   // ********************************************
   // ╔═╗╦═╗╦╦  ╦╔═╗╔╦╗╔═╗  ╔╦╗╔═╗╔╦╗╦ ╦╔═╗╔╦╗╔═╗
   // ╠═╝╠╦╝║╚╗╔╝╠═╣ ║ ║╣   ║║║║╣  ║ ╠═╣║ ║ ║║╚═╗

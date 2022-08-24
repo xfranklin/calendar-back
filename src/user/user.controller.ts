@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Req, UseGuards, Body } from "@nestjs/common";
 import { AuthGuard } from "../guards/auth.guard";
 import { NoAuth } from "../decorators/no-auth.decorator";
 import { Roles } from "../decorators/roles.decorator";
 import { RoleEnum } from "./types/roles.enum";
 import { UserService } from "./user.service";
+import { OnboardingDto } from "./dto/onboarding.dto";
 
 @Controller("user")
 @UseGuards(AuthGuard)
@@ -12,8 +13,14 @@ export class UserController {
 
   @Get("me")
   @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
-  me(@Req() request) {
-    return this.userService.me(request?.user.id);
+  async me(@Req() request) {
+    return await this.userService.me(request?.user.id);
+  }
+
+  @Post("onboard")
+  @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
+  async onboard(@Body() userData: OnboardingDto, @Req() request) {
+    return await this.userService.onboard(request?.user.id, userData);
   }
 
   @Post("all")
