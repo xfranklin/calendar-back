@@ -2,17 +2,17 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: "tsconfig.json",
-    sourceType: "module",
+    sourceType: "module"
   },
   plugins: ["@typescript-eslint/eslint-plugin"],
   extends: [
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended",
+    "plugin:prettier/recommended"
   ],
   root: true,
   env: {
     node: true,
-    jest: true,
+    jest: true
   },
   ignorePatterns: [".eslintrc.js"],
   rules: {
@@ -28,13 +28,17 @@ module.exports = {
         "allowTemplateLiterals": true
       }
     ],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
+    ],
     "prettier/prettier": [
-      "warn",
+      "error",
+      {},
       {
-        singleQuote: false,
-        semi: true,
-        trailingComma: "all"
+        "usePrettierrc": false
       }
     ]
-  },
+  }
 };

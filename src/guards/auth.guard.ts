@@ -15,15 +15,15 @@ import { RoleEnum } from "../user/types/roles.enum";
 export class AuthGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private configService: ConfigService,
+    private configService: ConfigService
   ) {}
 
   canActivate(
-    context: ExecutionContext,
+    context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
     const noAuth = this.reflector.get<string[]>(
       "no-auth",
-      context.getHandler(),
+      context.getHandler()
     );
     if (noAuth) {
       return true;
@@ -35,7 +35,7 @@ export class AuthGuard implements CanActivate {
     try {
       jwtData = jwt.verify(
         ACCESS_TOKEN,
-        this.configService.get<string>("ACCESS_TOKEN_SECRET"),
+        this.configService.get<string>("ACCESS_TOKEN_SECRET")
       );
     } catch (e) {
       throw new HttpException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
@@ -43,7 +43,7 @@ export class AuthGuard implements CanActivate {
 
     const allowRoles: RoleEnum[] = this.reflector.get<RoleEnum[]>(
       "roles",
-      context.getHandler(),
+      context.getHandler()
     );
     if (allowRoles.includes(jwtData.role)) {
       const request = context.switchToHttp().getRequest();
@@ -53,6 +53,5 @@ export class AuthGuard implements CanActivate {
     } else {
       throw new HttpException("WITHOUT_PERMISSION", HttpStatus.BAD_REQUEST);
     }
-    throw new HttpException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
   }
 }

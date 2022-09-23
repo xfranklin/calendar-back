@@ -28,7 +28,7 @@ export class AuthModule implements NestModule {
       .apply(RecaptchaMiddleware)
       .forRoutes(
         { path: "/auth/signup", method: RequestMethod.POST },
-        { path: "/auth/login", method: RequestMethod.POST },
+        { path: "/auth/login", method: RequestMethod.POST }
       );
   }
 }

@@ -14,7 +14,7 @@ export class JwtService {
     @InjectModel(Refresh.name)
     private readonly refreshModel: Model<RefreshDocument>,
     private readonly configService: ConfigService,
-    private readonly userService: UserService,
+    private readonly userService: UserService
   ) {}
 
   public setCookies(
@@ -22,7 +22,7 @@ export class JwtService {
     refresh: string,
     response: Response,
     redirectUrl?: string,
-    user?: UserType,
+    user?: UserType
   ) {
     response
       .cookie("ACCESS_TOKEN", access, {
@@ -59,7 +59,7 @@ export class JwtService {
       this.configService.get<string>("ACCESS_TOKEN_SECRET"),
       {
         expiresIn: Number(this.configService.get<string>("ACCESS_EXPIRATION")),
-      },
+      }
     );
     return token;
   }
@@ -70,7 +70,7 @@ export class JwtService {
       this.configService.get<string>("REFRESH_TOKEN_SECRET"),
       {
         expiresIn: Number(this.configService.get<string>("REFRESH_EXPIRATION")),
-      },
+      }
     );
     const { refreshToken } = await this.refreshModel.create({
       userId,
@@ -82,7 +82,7 @@ export class JwtService {
   public async refreshToken(
     REFRESH_TOKEN: string,
     ACCESS_TOKEN: string,
-    response: Response,
+    response: Response
   ) {
     this.isAccessTokenExpired(ACCESS_TOKEN);
     this.validateRefreshToken(REFRESH_TOKEN);

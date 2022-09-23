@@ -13,7 +13,7 @@ export class MailSenderService {
   constructor(
     @InjectModel(MailLimits.name)
     private readonly mailLimits: Model<MailLimitsDocument>,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   // ┌─┐┌─┐┌┐┌┌┬┐  ┌─┐┌┬┐┬┌─┐┬
@@ -80,7 +80,7 @@ export class MailSenderService {
     } catch (e) {
       throw new HttpException(
         "SEND_MAIL_SERVER_ERROR",
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
