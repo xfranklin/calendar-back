@@ -9,7 +9,7 @@ import { SocialsService } from "../socials/socials.service";
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly socialsService: SocialsService,
+    private readonly socialsService: SocialsService
   ) {}
 
   @Post("signup")
@@ -35,7 +35,7 @@ export class AuthController {
   @Get("social/google")
   async getGoogleUrl(
     @Query("redirect_uri") redirectUrl,
-    @Res() response: Response,
+    @Res() response: Response
   ) {
     return this.socialsService.getGoogleAuthUrl(response, redirectUrl);
   }
@@ -43,7 +43,7 @@ export class AuthController {
   @Get("social/facebook")
   async getFacebookUrl(
     @Query("redirect_uri") redirectUrl,
-    @Res() response: Response,
+    @Res() response: Response
   ) {
     return this.socialsService.getFacebookAuthUrl(response, redirectUrl);
   }
@@ -53,7 +53,7 @@ export class AuthController {
     @Query("code") code,
     @Query("state") state,
     @Req() request: Request,
-    @Res() response: Response,
+    @Res() response: Response
   ) {
     return await this.authService.googleAuth(code, state, request, response);
   }
@@ -63,7 +63,7 @@ export class AuthController {
     @Query("code") code,
     @Query("state") state,
     @Req() request: Request,
-    @Res() response: Response,
+    @Res() response: Response
   ) {
     return await this.authService.facebookAuth(code, state, request, response);
   }

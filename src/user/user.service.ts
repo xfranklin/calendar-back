@@ -13,7 +13,7 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(Entrypoint.name)
-    private readonly entrypointModel: Model<EntrypointDocument>,
+    private readonly entrypointModel: Model<EntrypointDocument>
   ) {}
 
   // ┌┬┐┌─┐
@@ -37,7 +37,7 @@ export class UserService {
           birthday,
           isOnboarded: true,
         },
-        { new: true },
+        { new: true }
       )
     ).toObject();
     // TO DO SEND CONFIRM EMAIL
@@ -51,14 +51,14 @@ export class UserService {
   // ********************************************
   public async createEntrypoint(
     type: EntrypointEnum,
-    data: EntrypointType,
+    data: EntrypointType
   ): Promise<EntrypointType> {
     return await this.entrypointModel.create({ type, ...data });
   }
 
   public async findEntrypointByClientId(
     type: EntrypointEnum,
-    id: string,
+    id: string
   ): Promise<EntrypointType> {
     return this.entrypointModel.findOne({ type, clientId: id });
   }

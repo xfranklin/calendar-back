@@ -9,7 +9,7 @@ import { Response } from "express";
 export class SocialsService {
   constructor(
     private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
+    private readonly httpService: HttpService
   ) {}
 
   // ╔═╗╔═╗╔═╗╔═╗╦  ╔═╗  ╔═╗╦ ╦╔╦╗╦ ╦
@@ -20,7 +20,7 @@ export class SocialsService {
     const REDIRECT_URL = `${redirectUrl}/api/auth/social/google-response`;
     const RANDOM_STRING = Math.random().toString(36).substring(2, 15);
     const STATE = Buffer.from(
-      JSON.stringify({ random: RANDOM_STRING, redirect_uri: redirectUrl }),
+      JSON.stringify({ random: RANDOM_STRING, redirect_uri: redirectUrl })
     ).toString("base64");
     const SCOPE = [
       "profile",
@@ -50,7 +50,7 @@ export class SocialsService {
       grant_type: "authorization_code",
     };
     const response: GoogleOauthResponseType = await lastValueFrom(
-      this.httpService.post(url, body).pipe(map((resp) => resp.data)),
+      this.httpService.post(url, body).pipe(map((resp) => resp.data))
     );
     return response;
   }
@@ -58,10 +58,10 @@ export class SocialsService {
   async getGoogleUserBirthday(token: string): Promise<any> {
     const url = `https://people.googleapis.com/v1/people/me?personFields=birthdays&access_token=${token}`;
     const { birthdays } = await lastValueFrom(
-      this.httpService.get(url).pipe(map((resp) => resp.data)),
+      this.httpService.get(url).pipe(map((resp) => resp.data))
     );
     const { date } = birthdays?.find(
-      ({ metadata }) => metadata?.source?.type === "ACCOUNT",
+      ({ metadata }) => metadata?.source?.type === "ACCOUNT"
     );
     if (date) {
       const { year, month, day } = date;
@@ -77,7 +77,7 @@ export class SocialsService {
     const response = await lastValueFrom(
       this.httpService
         .get(url, { headers: { Authorization: `Bearer ${access_token}` } })
-        .pipe(map((resp) => resp.data)),
+        .pipe(map((resp) => resp.data))
     );
     return response;
   }
@@ -90,7 +90,7 @@ export class SocialsService {
     const REDIRECT_URL = `${redirectUrl}/api/auth/social/facebook-response`;
     const RANDOM_STRING = Math.random().toString(36).substring(2, 15);
     const STATE = Buffer.from(
-      JSON.stringify({ random: RANDOM_STRING, redirect_uri: redirectUrl }),
+      JSON.stringify({ random: RANDOM_STRING, redirect_uri: redirectUrl })
     ).toString("base64");
     const SCOPE = ["email", "user_birthday"].join("+");
 
@@ -109,18 +109,18 @@ export class SocialsService {
     const REDIRECT_URL = `${redirectUrl}/api/auth/social/facebook-response`;
     const url = `https://graph.facebook.com/v13.0/oauth/access_token?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URL}&client_secret=${SECRET_KEY}&code=${code}`;
     const response = await lastValueFrom(
-      this.httpService.get(url).pipe(map((resp) => resp.data)),
+      this.httpService.get(url).pipe(map((resp) => resp.data))
     );
     return response;
   }
 
   async getFacebookUserInfo(access_token: string) {
     const FIELDS = ["id", "email", "birthday", "first_name", "last_name"].join(
-      ",",
+      ","
     );
     const url = `https://graph.facebook.com/v13.0/me?fields=${FIELDS}&access_token=${access_token}`;
     const response = await lastValueFrom(
-      this.httpService.get(url).pipe(map((resp) => resp.data)),
+      this.httpService.get(url).pipe(map((resp) => resp.data))
     );
     return response;
   }

@@ -17,7 +17,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly socialsService: SocialsService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   // ┌─┐┬┌─┐┌┐┌┬ ┬┌─┐
@@ -31,7 +31,7 @@ export class AuthService {
     const password = await argon2.hash(userDto.password);
     const { _id } = await this.userService.createEntrypoint(
       EntrypointEnum.EMAIL,
-      { ...userDto, password },
+      { ...userDto, password }
     );
     const user: UserType = await this.userService.create({
       email: userDto.email,
@@ -48,11 +48,11 @@ export class AuthService {
     if (!user?.entrypoints) {
       throw new HttpException(
         "INCORRECT_EMAIL_OR_PASSWORD",
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       );
     }
     const emailEntrypoint = user.entrypoints.find(
-      ({ type }) => type === EntrypointEnum.EMAIL,
+      ({ type }) => type === EntrypointEnum.EMAIL
     );
     if (emailEntrypoint) {
       if (await argon2.verify(emailEntrypoint.password, userDto.password)) {
@@ -60,13 +60,13 @@ export class AuthService {
       } else {
         throw new HttpException(
           "INCORRECT_EMAIL_OR_PASSWORD",
-          HttpStatus.BAD_REQUEST,
+          HttpStatus.BAD_REQUEST
         );
       }
     } else {
       throw new HttpException(
         "INCORRECT_EMAIL_OR_PASSWORD",
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       );
     }
   }
@@ -78,7 +78,7 @@ export class AuthService {
     code: string,
     state: string,
     request: Request,
-    response: Response,
+    response: Response
   ) {
     if (request.cookies.GOOGLE_STATE !== state) {
       return response.redirect(this.configService.get<string>("APP_URL"));
@@ -95,12 +95,12 @@ export class AuthService {
       const { id_token, access_token } =
         await this.socialsService.getGoogleTokens(code, redirectUrl);
       const { sub, email } = JSON.parse(
-        Buffer.from(id_token.split(".")[1], "base64").toString(),
+        Buffer.from(id_token.split(".")[1], "base64").toString()
       );
       const user = await this.userService.findUserByEmail(email);
       if (user) {
         const hasEntrypoint = user.entrypoints.find(
-          ({ clientId }) => clientId === sub,
+          ({ clientId }) => clientId === sub
         );
         if (hasEntrypoint) {
           await this.setCookies(user, response, redirectUrl);
@@ -111,11 +111,11 @@ export class AuthService {
         const { given_name, family_name } =
           await this.socialsService.getGoogleUserInfo(access_token);
         const birthday = await this.socialsService.getGoogleUserBirthday(
-          access_token,
+          access_token
         );
         const { _id } = await this.userService.createEntrypoint(
           EntrypointEnum.GOOGLE,
-          { clientId: sub, email },
+          { clientId: sub, email }
         );
         const newUser = await this.userService.create({
           email,
@@ -139,7 +139,7 @@ export class AuthService {
     code: string,
     state: string,
     request: Request,
-    response: Response,
+    response: Response
   ) {
     if (request.cookies.FACEBOOK_STATE !== state) {
       return response.redirect(this.configService.get<string>("APP_URL"));
@@ -155,19 +155,19 @@ export class AuthService {
 
       const { access_token } = await this.socialsService.getFacebookTokens(
         code,
-        redirectUrl,
+        redirectUrl
       );
       const { id, email, birthday, first_name, last_name } =
         await this.socialsService.getFacebookUserInfo(access_token);
 
       const entrypoint = await this.userService.findEntrypointByClientId(
         EntrypointEnum.FACEBOOK,
-        id,
+        id
       );
 
       if (entrypoint?._id) {
         const user = await this.userService.findUserByEntryPoint(
-          entrypoint?._id,
+          entrypoint?._id
         );
         return await this.setCookies(user, response, redirectUrl);
       } else {
@@ -179,7 +179,7 @@ export class AuthService {
         }
         const { _id } = await this.userService.createEntrypoint(
           EntrypointEnum.FACEBOOK,
-          { clientId: id, ...(email && { email }) },
+          { clientId: id, ...(email && { email }) }
         );
         const newUser = await this.userService.create({
           entrypoints: [_id],
@@ -222,7 +222,7 @@ export class AuthService {
   private async setCookies(
     user: UserType,
     response: Response,
-    redirectUrl?: string,
+    redirectUrl?: string
   ) {
     const access = this.jwtService.generateAccessToken(user);
     const refresh = await this.jwtService.generateRefreshToken(user._id);
@@ -232,7 +232,7 @@ export class AuthService {
       refresh,
       response,
       redirectUrl,
-      userData,
+      userData
     );
   }
 }

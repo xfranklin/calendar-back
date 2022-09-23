@@ -17,17 +17,17 @@ const API = "https://www.google.com/recaptcha/api/siteverify";
 export class RecaptchaMiddleware implements NestMiddleware {
   constructor(
     private httpService: HttpService,
-    private configService: ConfigService,
+    private configService: ConfigService
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
     const { body }: { body: { token: string } } = req;
     if (body.token) {
       const url = `${API}?secret=${this.configService.get<string>(
-        "RECAPTCHA_SECRET",
+        "RECAPTCHA_SECRET"
       )}&response=${body.token}`;
       const response: RecaptchaType = await lastValueFrom(
-        this.httpService.post(url).pipe(map((resp) => resp.data)),
+        this.httpService.post(url).pipe(map((resp) => resp.data))
       );
       if (response.success && response.score >= THRESHOLD) {
         delete req.body.token;
