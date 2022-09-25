@@ -3,7 +3,7 @@ import {
   IsNotEmpty,
   MinLength,
   MaxLength,
-  Matches,
+  Matches
 } from "class-validator";
 
 export class SignUpDto {
@@ -14,8 +14,13 @@ export class SignUpDto {
   @MinLength(4, { message: "SHORT_PASSWORD" })
   @MaxLength(128, { message: "LONG_PASSWORD" })
   @Matches(/^[A-Za-z0-9~`!@#$%^&*()_\-+={[}\]|:;"'<,>.?\/]*$/, {
-    message: "PASSWORD_UNSUSPECTED_CHARACTERS",
+    message: "PASSWORD_UNSUSPECTED_CHARACTERS"
   })
   @IsNotEmpty({ message: "PASSWORD_EMPTY" })
   password: string;
+
+  /**
+   * Google reCAPTCHA token. Disabled in development
+   */
+  token?: string;
 }

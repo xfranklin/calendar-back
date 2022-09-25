@@ -7,9 +7,9 @@ import { UserModule } from "../user/user.module";
 @Module({
   imports: [
     UserModule,
-    MongooseModule.forFeature([{ name: Refresh.name, schema: RefreshSchema }]),
+    MongooseModule.forFeature([{ name: Refresh.name, schema: RefreshSchema }])
   ],
   providers: [JwtService],
-  exports: [JwtService],
+  exports: [JwtService]
 })
 export class JwtModule {}

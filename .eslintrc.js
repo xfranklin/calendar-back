@@ -37,7 +37,7 @@ module.exports = {
       "error",
       {},
       {
-        "usePrettierrc": false
+        "usePrettierrc": true
       }
     ]
   }

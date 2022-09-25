@@ -50,7 +50,7 @@ export class MailSenderService {
   private async createLimit(userEmail: string, letterId: string) {
     await this.mailLimits.create({
       userEmail,
-      letterId,
+      letterId
     });
   }
 
@@ -63,15 +63,15 @@ export class MailSenderService {
     sgMail.setApiKey(this.configService.get<string>("SENDGRID_API_KEY"));
     const message = {
       from: {
-        email: from,
+        email: from
       },
       template_id: letterId,
       personalizations: [
         {
           to: [{ email: userEmail }],
-          dynamic_template_data: data,
-        },
-      ],
+          dynamic_template_data: data
+        }
+      ]
     };
     try {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -35,7 +35,7 @@ export class AuthService {
     );
     const user: UserType = await this.userService.create({
       email: userDto.email,
-      entrypoints: [_id],
+      entrypoints: [_id]
     });
     await this.setCookies(user, response);
   }
@@ -45,30 +45,22 @@ export class AuthService {
   // ┴─┘└─┘└─┘┴┘└┘
   public async login(userDto: LoginDto, response: Response) {
     const user = await this.userService.findUserByEmail(userDto.email);
-    if (!user?.entrypoints) {
-      throw new HttpException(
-        "INCORRECT_EMAIL_OR_PASSWORD",
-        HttpStatus.BAD_REQUEST
+    if (user?.entrypoints) {
+      const emailEntrypoint = user.entrypoints.find(
+        ({ type }) => type === EntrypointEnum.EMAIL
       );
-    }
-    const emailEntrypoint = user.entrypoints.find(
-      ({ type }) => type === EntrypointEnum.EMAIL
-    );
-    if (emailEntrypoint) {
-      if (await argon2.verify(emailEntrypoint.password, userDto.password)) {
-        await this.setCookies(user, response);
-      } else {
-        throw new HttpException(
-          "INCORRECT_EMAIL_OR_PASSWORD",
-          HttpStatus.BAD_REQUEST
-        );
+
+      if (emailEntrypoint) {
+        if (await argon2.verify(emailEntrypoint.password, userDto.password)) {
+          await this.setCookies(user, response);
+        }
       }
-    } else {
-      throw new HttpException(
-        "INCORRECT_EMAIL_OR_PASSWORD",
-        HttpStatus.BAD_REQUEST
-      );
     }
+
+    throw new HttpException(
+      "INCORRECT_EMAIL_OR_PASSWORD",
+      HttpStatus.BAD_REQUEST
+    );
   }
 
   // ┌─┐┌─┐┌─┐┌─┐┬  ┌─┐
@@ -83,6 +75,7 @@ export class AuthService {
     if (request.cookies.GOOGLE_STATE !== state) {
       return response.redirect(this.configService.get<string>("APP_URL"));
     }
+
     try {
       const stateData = JSON.parse(Buffer.from(state, "base64").toString());
       const redirectUrl =
@@ -97,11 +90,13 @@ export class AuthService {
       const { sub, email } = JSON.parse(
         Buffer.from(id_token.split(".")[1], "base64").toString()
       );
+
       const user = await this.userService.findUserByEmail(email);
       if (user) {
         const hasEntrypoint = user.entrypoints.find(
           ({ clientId }) => clientId === sub
         );
+
         if (hasEntrypoint) {
           await this.setCookies(user, response, redirectUrl);
         } else {
@@ -123,7 +118,7 @@ export class AuthService {
           entrypoints: [_id],
           firstName: given_name,
           lastName: family_name,
-          isVerified: true,
+          isVerified: true
         });
         await this.setCookies(newUser, response, redirectUrl);
       }
@@ -144,6 +139,7 @@ export class AuthService {
     if (request.cookies.FACEBOOK_STATE !== state) {
       return response.redirect(this.configService.get<string>("APP_URL"));
     }
+
     try {
       const stateData = JSON.parse(Buffer.from(state, "base64").toString());
       const redirectUrl =
@@ -177,6 +173,7 @@ export class AuthService {
             return response.redirect(redirectUrl);
           }
         }
+
         const { _id } = await this.userService.createEntrypoint(
           EntrypointEnum.FACEBOOK,
           { clientId: id, ...(email && { email }) }
@@ -187,8 +184,9 @@ export class AuthService {
           ...(email && { email }),
           ...(first_name && { firstName: first_name }),
           ...(last_name && { lastName: last_name }),
-          isVerified: !!email,
+          isVerified: !!email
         });
+
         return await this.setCookies(newUser, response, redirectUrl);
       }
     } catch {

@@ -12,16 +12,34 @@ export class AuthController {
     private readonly socialsService: SocialsService
   ) {}
 
+  /**
+   * Sign Up method
+   *
+   * @param signUpData
+   * @param response
+   */
   @Post("signup")
   async signUp(@Body() signUpData: SignUpDto, @Res() response: Response) {
     return await this.authService.signUp(signUpData, response);
   }
 
+  /**
+   * Sign In method
+   *
+   * @param loginData
+   * @param response
+   */
   @Post("login")
   async login(@Body() loginData: LoginDto, @Res() response: Response) {
     return await this.authService.login(loginData, response);
   }
 
+  /**
+   * Log Out method. Removes Refresh Token and access cookie
+   *
+   * @param request
+   * @param response
+   */
   @Post("logout")
   async logout(@Req() request: Request, @Res() response: Response) {
     return await this.authService.logout(request, response);

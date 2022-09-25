@@ -9,11 +9,11 @@ import { Entrypoint, EntrypointSchema } from "./shemas/entrypoint.shema";
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([
-      { name: Entrypoint.name, schema: EntrypointSchema },
-    ]),
+      { name: Entrypoint.name, schema: EntrypointSchema }
+    ])
   ],
   controllers: [UserController],
   providers: [UserService],
-  exports: [UserService],
+  exports: [UserService]
 })
 export class UserModule {}

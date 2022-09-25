@@ -3,7 +3,7 @@ import {
   HttpStatus,
   Injectable,
   CanActivate,
-  ExecutionContext,
+  ExecutionContext
 } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { Reflector } from "@nestjs/core";

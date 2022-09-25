@@ -2,7 +2,7 @@ import {
   Injectable,
   NestMiddleware,
   HttpException,
-  HttpStatus,
+  HttpStatus
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { HttpService } from "@nestjs/axios";
@@ -22,6 +22,8 @@ export class RecaptchaMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const { body }: { body: { token: string } } = req;
+    if (process.env.NODE_ENV === "development") return next();
+
     if (body.token) {
       const url = `${API}?secret=${this.configService.get<string>(
         "RECAPTCHA_SECRET"
@@ -31,12 +33,10 @@ export class RecaptchaMiddleware implements NestMiddleware {
       );
       if (response.success && response.score >= THRESHOLD) {
         delete req.body.token;
-        next();
-      } else {
-        throw new HttpException("INVALID_CAPTCHA", HttpStatus.BAD_REQUEST);
+        return next();
       }
-    } else {
-      throw new HttpException("INVALID_CAPTCHA", HttpStatus.BAD_REQUEST);
     }
+
+    throw new HttpException("INVALID_CAPTCHA", HttpStatus.BAD_REQUEST);
   }
 }

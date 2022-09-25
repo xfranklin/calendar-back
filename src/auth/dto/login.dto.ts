@@ -1,21 +1,7 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  MinLength,
-  MaxLength,
-  Matches,
-} from "class-validator";
+import { IsNotEmpty } from "class-validator";
+import { SignUpDto } from "./signup.dto";
 
-export class LoginDto {
-  @IsEmail({}, { message: "INVALID_EMAIL" })
-  @IsNotEmpty({ message: "EMAIL_EMPTY" })
-  email: string;
-
-  @MinLength(4, { message: "SHORT_PASSWORD" })
-  @MaxLength(128, { message: "LONG_PASSWORD" })
-  @Matches(/^[A-Za-z0-9~`!@#$%^&*()_\-+={[}\]|:;"'<,>.?\/]*$/, {
-    message: "PASSWORD_UNSUSPECTED_CHARACTERS",
-  })
+export class LoginDto extends SignUpDto {
   @IsNotEmpty({ message: "PASSWORD_EMPTY" })
   password: string;
 }

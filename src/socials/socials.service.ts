@@ -25,13 +25,13 @@ export class SocialsService {
     const SCOPE = [
       "profile",
       "email",
-      "https://www.googleapis.com/auth/user.birthday.read",
+      "https://www.googleapis.com/auth/user.birthday.read"
     ].join("+");
 
     const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URL}&response_type=code&scope=${SCOPE}&state=${STATE}`;
     response
       .cookie("GOOGLE_STATE", STATE, {
-        httpOnly: true,
+        httpOnly: true
       })
       .status(HttpStatus.OK)
       .json({ url });
@@ -47,7 +47,7 @@ export class SocialsService {
       client_id: CLIENT_ID,
       client_secret: SECRET_KEY,
       redirect_uri: REDIRECT_URL,
-      grant_type: "authorization_code",
+      grant_type: "authorization_code"
     };
     const response: GoogleOauthResponseType = await lastValueFrom(
       this.httpService.post(url, body).pipe(map((resp) => resp.data))
@@ -97,7 +97,7 @@ export class SocialsService {
     const url = `https://www.facebook.com/v13.0/dialog/oauth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URL}&state=${STATE}&response_type=code&scope=${SCOPE}`;
     response
       .cookie("FACEBOOK_STATE", STATE, {
-        httpOnly: true,
+        httpOnly: true
       })
       .status(HttpStatus.OK)
       .json({ url });
