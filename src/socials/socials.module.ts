@@ -5,6 +5,6 @@ import { HttpModule } from "@nestjs/axios";
 @Module({
   imports: [HttpModule.register({ timeout: 3000 })],
   providers: [SocialsService],
-  exports: [SocialsService],
+  exports: [SocialsService]
 })
 export class SocialsModule {}

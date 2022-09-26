@@ -9,8 +9,14 @@ export class Refresh {
   @Prop()
   refreshToken: string;
 
-  // TODO set ENV
-  @Prop({ type: Date, default: Date.now, index: { expireAfterSeconds: 360 } })
+  @Prop({ type: Date, default: Date.now })
+  createdAt: Date;
+
+  @Prop({
+    type: Date,
+    default: Date.now,
+    index: { expireAfterSeconds: 0 }
+  })
   expiredAt: Date;
 }
 

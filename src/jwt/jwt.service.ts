@@ -26,10 +26,10 @@ export class JwtService {
   ) {
     response
       .cookie("ACCESS_TOKEN", access, {
-        httpOnly: true,
+        httpOnly: true
       })
       .cookie("REFRESH_TOKEN", refresh, {
-        httpOnly: true,
+        httpOnly: true
       });
     if (redirectUrl) {
       return response.redirect(redirectUrl);
@@ -52,29 +52,32 @@ export class JwtService {
     _id,
     email,
     role,
-    isVerified,
+    isVerified
   }: UserType): string {
     const token = jwt.sign(
       { type: "ACCESS", id: _id, email, role, isVerified },
       this.configService.get<string>("ACCESS_TOKEN_SECRET"),
       {
-        expiresIn: Number(this.configService.get<string>("ACCESS_EXPIRATION")),
+        expiresIn: Number(this.configService.get<string>("ACCESS_EXPIRATION"))
       }
     );
     return token;
   }
 
   public async generateRefreshToken(userId: string): Promise<string> {
+    const ttl = Number(this.configService.get<string>("REFRESH_EXPIRATION"));
+    const expiredAt = Date.now() + ttl * 1000;
     const token = jwt.sign(
       { type: "REFRESH", id: userId },
       this.configService.get<string>("REFRESH_TOKEN_SECRET"),
       {
-        expiresIn: Number(this.configService.get<string>("REFRESH_EXPIRATION")),
+        expiresIn: ttl
       }
     );
     const { refreshToken } = await this.refreshModel.create({
       userId,
       refreshToken: token,
+      expiredAt
     });
     return refreshToken;
   }
@@ -105,7 +108,7 @@ export class JwtService {
   // ********************************************
   private async findRefreshToken(token: string) {
     const refreshToken = await this.refreshModel.findOne({
-      refreshToken: token,
+      refreshToken: token
     });
     if (!refreshToken) {
       throw new HttpException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED);

@@ -1,5 +1,4 @@
 import { Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
 import { AuthModule } from "./auth/auth.module";
@@ -11,7 +10,7 @@ import { SocialsModule } from "./socials/socials.module";
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
+      isGlobal: true
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -19,18 +18,18 @@ import { SocialsModule } from "./socials/socials.module";
         return {
           uri: configService.get<string>("MONGO_URI"),
           useNewUrlParser: true,
-          useUnifiedTopology: true,
+          useUnifiedTopology: true
         };
       },
-      inject: [ConfigService],
+      inject: [ConfigService]
     }),
     AuthModule,
     JwtModule,
     UserModule,
     MailSenderModule,
-    SocialsModule,
+    SocialsModule
   ],
-  controllers: [AppController],
-  providers: [],
+  controllers: [],
+  providers: []
 })
 export class AppModule {}

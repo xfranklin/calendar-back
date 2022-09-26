@@ -35,7 +35,7 @@ export class UserService {
         {
           ...personalInfo,
           birthday,
-          isOnboarded: true,
+          isOnboarded: true
         },
         { new: true }
       )

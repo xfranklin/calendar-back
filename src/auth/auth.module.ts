@@ -2,7 +2,7 @@ import {
   MiddlewareConsumer,
   Module,
   NestModule,
-  RequestMethod,
+  RequestMethod
 } from "@nestjs/common";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
@@ -17,10 +17,10 @@ import { HttpModule } from "@nestjs/axios";
     HttpModule.register({ timeout: 3000 }),
     JwtModule,
     UserModule,
-    SocialsModule,
+    SocialsModule
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService]
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

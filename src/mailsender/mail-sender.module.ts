@@ -6,10 +6,10 @@ import { MailLimits, MailLimitsSchema } from "./shemas/mail-limits.schema";
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: MailLimits.name, schema: MailLimitsSchema },
-    ]),
+      { name: MailLimits.name, schema: MailLimitsSchema }
+    ])
   ],
   providers: [MailSenderService],
-  exports: [MailSenderService],
+  exports: [MailSenderService]
 })
 export class MailSenderModule {}
