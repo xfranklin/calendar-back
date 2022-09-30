@@ -7,14 +7,26 @@ import { Entrypoint, EntrypointDocument } from "./shemas/entrypoint.shema";
 import { EntrypointEnum } from "./types/entrypoints.enum";
 import { EntrypointType } from "./types/entrypoint.type";
 import { getUser } from "./helpers/getUser";
+import { MailSenderService} from "../mailsender/mail-sender.service";
+import { LettersEnum} from "../mailsender/types/letters.enum";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(Entrypoint.name)
-    private readonly entrypointModel: Model<EntrypointDocument>
+    private readonly entrypointModel: Model<EntrypointDocument>,
+    private readonly mailSenderService: MailSenderService
   ) {}
+
+  // TODO DElETE ME
+  public async testSend() {
+    await this.mailSenderService.sendMail(
+      "d.feleniuk@oooi.app",
+      LettersEnum.EMAIL_VERIFICATION,
+      { user_name: "test Name", verify_link: "https://www.google.com/" }
+    );
+  }
 
   // ┌┬┐┌─┐
   // │││├┤

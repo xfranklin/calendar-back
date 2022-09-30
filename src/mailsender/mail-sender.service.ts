@@ -59,11 +59,11 @@ export class MailSenderService {
   }
 
   private async send(userEmail: string, letterId: LettersEnum, data: any) {
-    const from = this.configService.get<string>("SENDGRID_FROM");
+    const FROM = "notify@oooi.app";
     sgMail.setApiKey(this.configService.get<string>("SENDGRID_API_KEY"));
     const message = {
       from: {
-        email: from
+        email: FROM
       },
       template_id: letterId,
       personalizations: [

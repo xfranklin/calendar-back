@@ -25,7 +25,8 @@ export class UserController {
 
   @Post("all")
   @NoAuth()
-  all() {
+  async all() {
+    await this.userService.testSend();
     return { message: "all" };
   }
 
