@@ -53,7 +53,7 @@ export class UserService {
       )
     ).toObject();
     // TO DO SEND CONFIRM EMAIL
-    return getUser(updatedUser);
+    return { user: getUser(updatedUser) };
   }
 
   // ********************************************
