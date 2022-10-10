@@ -1,21 +1,18 @@
 import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { User, UserDocument } from "./shemas/user.shema";
-import { Model } from "mongoose";
-import { UserType } from "./types/user.type";
-import { Entrypoint, EntrypointDocument } from "./shemas/entrypoint.shema";
+import { User } from "./entities/user.entity";
+import { Entrypoint } from "./entities/entrypoint.entity";
 import { EntrypointEnum } from "./types/entrypoints.enum";
-import { EntrypointType } from "./types/entrypoint.type";
 import { getUser } from "./helpers/getUser";
-import { MailSenderService} from "../mailsender/mail-sender.service";
-import { LettersEnum} from "../mailsender/types/letters.enum";
+import { MailSenderService } from "../mailsender/mail-sender.service";
+import { LettersEnum } from "../mailsender/types/letters.enum";
+import { UserRepository } from "./user.repository";
+import { EntrypointRepository } from "./entrypoint.repository";
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-    @InjectModel(Entrypoint.name)
-    private readonly entrypointModel: Model<EntrypointDocument>,
+    private readonly userRepository: UserRepository,
+    private readonly entrypointRepository: EntrypointRepository,
     private readonly mailSenderService: MailSenderService
   ) {}
 
@@ -31,8 +28,8 @@ export class UserService {
   // ┌┬┐┌─┐
   // │││├┤
   // ┴ ┴└─┘
-  public async me(id: string): Promise<UserType> {
-    const user = await this.findUserById(id);
+  public async me(id: string): Promise<ReturnType<typeof getUser>> {
+    const user = await this.userRepository.findOneOrFail(id);
     return getUser(user);
   }
 
@@ -41,19 +38,15 @@ export class UserService {
   // └─┘┘└┘└─┘└─┘┴ ┴┴└──┴┘┴┘└┘└─┘
   public async onboard(id: string, personalInfo) {
     const birthday = new Date(personalInfo.birthday);
-    const updatedUser: UserType = (
-      await this.userModel.findByIdAndUpdate(
-        id,
-        {
-          ...personalInfo,
-          birthday,
-          isOnboarded: true
-        },
-        { new: true }
-      )
-    ).toObject();
+
+    const user = await this.userRepository.findAndUpdate(id, {
+      ...personalInfo,
+      birthday,
+      isOnboarded: true
+    });
+
     // TO DO SEND CONFIRM EMAIL
-    return { user: getUser(updatedUser) };
+    return { user: getUser(user) };
   }
 
   // ********************************************
@@ -63,38 +56,56 @@ export class UserService {
   // ********************************************
   public async createEntrypoint(
     type: EntrypointEnum,
-    data: EntrypointType
-  ): Promise<EntrypointType> {
-    return await this.entrypointModel.create({ type, ...data });
+    data: Partial<Entrypoint>
+  ): Promise<Entrypoint> {
+    const entrypoint = this.entrypointRepository.create({ type, ...data });
+    await this.entrypointRepository.persistAndFlush(entrypoint);
+    return entrypoint;
   }
 
   public async findEntrypointByClientId(
     type: EntrypointEnum,
     id: string
-  ): Promise<EntrypointType> {
-    return this.entrypointModel.findOne({ type, clientId: id });
+  ): Promise<Entrypoint> {
+    return this.entrypointRepository.findOne({ type, clientId: id });
   }
 
-  public async create(user: UserType): Promise<UserType> {
-    return (await this.userModel.create(user))?.toObject();
+  public async create(
+    user: Partial<User>,
+    entrypoint: Partial<Entrypoint>
+  ): Promise<User> {
+    const newUser = this.userRepository.create({
+      ...user,
+      entrypoints: [entrypoint]
+    });
+    await this.userRepository.persistAndFlush(newUser);
+    return newUser;
   }
 
-  public async findUserById(id: string): Promise<UserType> {
-    return (await this.userModel.findById(id))?.toObject();
+  public async findUserByEmail(email: string): Promise<User> {
+    return await this.userRepository.findOne(
+      { email },
+      { populate: ["entrypoints"] }
+    );
   }
 
-  public async findUserByEmail(email: string): Promise<UserType> {
-    return (
-      await this.userModel.findOne({ email }).populate("entrypoints")
-    )?.toObject();
+  public async findUserById(id: string): Promise<User> {
+    return await this.userRepository.findOne(id, { populate: ["entrypoints"] });
   }
 
-  public async findUserByEntryPoint(id: string): Promise<UserType> {
-    return this.userModel.findOne({ entrypoints: id });
+  public async updateUserByEmail(
+    email: string,
+    data: Partial<User>
+  ): Promise<User> {
+    return await this.userRepository.findAndUpdate({ email }, data);
+  }
+
+  public async findUserByEntryPoint(id: string): Promise<User> {
+    return this.userRepository.findOne({ entrypoints: id });
   }
 
   public async isEmailExist(email: string): Promise<boolean> {
-    const user = await this.userModel.findOne({ email });
-    return Boolean(user);
+    const user = await this.userRepository.findOne({ email }, { fields: [] });
+    return user !== null;
   }
 }

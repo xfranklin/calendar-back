@@ -11,6 +11,7 @@ import { UserModule } from "../user/user.module";
 import { SocialsModule } from "../socials/socials.module";
 import { RecaptchaMiddleware } from "../middlewares/recaptcha.middleware";
 import { HttpModule } from "@nestjs/axios";
+import { SocialController } from "./social.controller";
 
 @Module({
   imports: [
@@ -19,11 +20,11 @@ import { HttpModule } from "@nestjs/axios";
     UserModule,
     SocialsModule
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, SocialController],
   providers: [AuthService]
 })
 export class AuthModule implements NestModule {
-  configure(consumer: MiddlewareConsumer): any {
+  configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(RecaptchaMiddleware)
       .forRoutes(

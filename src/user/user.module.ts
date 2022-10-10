@@ -2,16 +2,14 @@ import { Module } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UserController } from "./user.controller";
 import { MailSenderModule } from "../mailsender/mail-sender.module";
-import { MongooseModule } from "@nestjs/mongoose";
-import { User, UserSchema } from "./shemas/user.shema";
-import { Entrypoint, EntrypointSchema } from "./shemas/entrypoint.shema";
+import { User } from "./entities/user.entity";
+import { Entrypoint } from "./entities/entrypoint.entity";
+import { MikroOrmModule } from "@mikro-orm/nestjs";
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([
-      { name: Entrypoint.name, schema: EntrypointSchema }
-    ]),
+    MikroOrmModule.forFeature({ entities: [User] }),
+    MikroOrmModule.forFeature({ entities: [Entrypoint] }),
     MailSenderModule
   ],
   controllers: [UserController],

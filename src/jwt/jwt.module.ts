@@ -1,14 +1,11 @@
 import { Module } from "@nestjs/common";
 import { JwtService } from "./jwt.service";
-import { MongooseModule } from "@nestjs/mongoose";
-import { Refresh, RefreshSchema } from "./shemas/refresh.shema";
+import { Refresh } from "./entities/refresh.entity";
 import { UserModule } from "../user/user.module";
+import { MikroOrmModule } from "@mikro-orm/nestjs";
 
 @Module({
-  imports: [
-    UserModule,
-    MongooseModule.forFeature([{ name: Refresh.name, schema: RefreshSchema }])
-  ],
+  imports: [UserModule, MikroOrmModule.forFeature({ entities: [Refresh] })],
   providers: [JwtService],
   exports: [JwtService]
 })
