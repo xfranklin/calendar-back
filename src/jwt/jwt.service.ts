@@ -46,9 +46,9 @@ export class JwtService {
       .json({ status: HttpStatus.OK });
   }
 
-  public generateAccessToken({ _id, email, role, isVerified }: User): string {
+  public generateAccessToken({ id, email, role, isVerified }: User): string {
     return jwt.sign(
-      { type: "ACCESS", id: _id, email, role, isVerified },
+      { type: "ACCESS", id, email, role, isVerified },
       this.configService.get<string>("ACCESS_TOKEN_SECRET"),
       {
         expiresIn: Number(this.configService.get<string>("ACCESS_EXPIRATION"))
