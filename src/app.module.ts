@@ -18,8 +18,8 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
         return {
           type: "mongo",
           clientUrl: configService.get<string>("MONGO_URI"),
-          entities: ["dist/**/*.entity.js"],
-          entitiesTs: ["src/**/*.entity.ts"],
+          entities: ["./**/*.entity.js"],
+          entitiesTs: ["./**/*.entity.ts"],
           debug: process.env.NODE_ENV !== "production"
         };
       },

@@ -1,6 +1,6 @@
 import { RoleEnum } from "../types/roles.enum";
 import { Entrypoint } from "./entrypoint.entity";
-import { Collection, Entity, OneToMany, Property } from "@mikro-orm/core";
+import { Collection, Entity, Enum, OneToMany, Property } from "@mikro-orm/core";
 import { UserRepository } from "../user.repository";
 import { BaseEntity } from "../../entities/base.entity";
 
@@ -9,8 +9,8 @@ export class User extends BaseEntity {
   @Property({ default: null, nullable: true })
   email?: string;
 
-  @Property({ default: RoleEnum.USER })
-  role: RoleEnum;
+  @Enum(() => RoleEnum)
+  role: RoleEnum = RoleEnum.USER;
 
   @OneToMany(() => Entrypoint, (entrypoint) => entrypoint.user)
   entrypoints: Collection<Entrypoint> = new Collection<Entrypoint>(this);

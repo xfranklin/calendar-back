@@ -128,7 +128,8 @@ export class AuthService {
         );
         await this.setCookies(user, response, redirectUrl);
       }
-    } catch {
+    } catch (e) {
+      console.error(`AUTH Google: ${e}`);
       response.redirect(this.configService.get<string>("APP_URL"));
     }
   }
@@ -197,7 +198,8 @@ export class AuthService {
 
         return await this.setCookies(user, response, redirectUrl);
       }
-    } catch {
+    } catch (e) {
+      console.error(`AUTH Facebook: ${e}`);
       response.redirect(this.configService.get<string>("APP_URL"));
     }
   }

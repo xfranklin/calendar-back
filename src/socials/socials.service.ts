@@ -49,10 +49,9 @@ export class SocialsService {
       redirect_uri: REDIRECT_URL,
       grant_type: "authorization_code"
     };
-    const response: GoogleOauthResponseType = await lastValueFrom(
+    return await lastValueFrom(
       this.httpService.post(url, body).pipe(map((resp) => resp.data))
     );
-    return response;
   }
 
   async getGoogleUserBirthday(token: string): Promise<any> {
@@ -60,11 +59,11 @@ export class SocialsService {
     const { birthdays } = await lastValueFrom(
       this.httpService.get(url).pipe(map((resp) => resp.data))
     );
-    const { date } = birthdays?.find(
+    const birthday = birthdays?.find(
       ({ metadata }) => metadata?.source?.type === "ACCOUNT"
     );
-    if (date) {
-      const { year, month, day } = date;
+    if (birthday?.date) {
+      const { year, month, day } = birthday.date;
       if (year && month && day) {
         return new Date(year, month - 1, day);
       }
@@ -74,12 +73,11 @@ export class SocialsService {
 
   async getGoogleUserInfo(access_token: string): Promise<any> {
     const url = `https://www.googleapis.com/oauth2/v3/userinfo`;
-    const response = await lastValueFrom(
+    return await lastValueFrom(
       this.httpService
         .get(url, { headers: { Authorization: `Bearer ${access_token}` } })
         .pipe(map((resp) => resp.data))
     );
-    return response;
   }
 
   // ╔═╗╔═╗╔═╗╔═╗╔╗ ╔═╗╔═╗╦╔═  ╔═╗╦ ╦╔╦╗╦ ╦
@@ -108,10 +106,9 @@ export class SocialsService {
     const SECRET_KEY = this.configService.get<string>("FACEBOOK_CLIENT_SECRET");
     const REDIRECT_URL = `${redirectUrl}/api/auth/social/facebook-response`;
     const url = `https://graph.facebook.com/v13.0/oauth/access_token?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URL}&client_secret=${SECRET_KEY}&code=${code}`;
-    const response = await lastValueFrom(
+    return await lastValueFrom(
       this.httpService.get(url).pipe(map((resp) => resp.data))
     );
-    return response;
   }
 
   async getFacebookUserInfo(access_token: string) {
@@ -119,9 +116,8 @@ export class SocialsService {
       ","
     );
     const url = `https://graph.facebook.com/v13.0/me?fields=${FIELDS}&access_token=${access_token}`;
-    const response = await lastValueFrom(
+    return await lastValueFrom(
       this.httpService.get(url).pipe(map((resp) => resp.data))
     );
-    return response;
   }
 }

@@ -4,6 +4,8 @@ import { ValidationPipe } from "@nestjs/common";
 import * as cookieParser from "cookie-parser";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
+const port = 3000;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix("api");
@@ -23,7 +25,9 @@ async function bootstrap() {
   }
 
   app.use(cookieParser());
-  await app.listen(3000);
+  await app.listen(port);
 }
 
-bootstrap();
+bootstrap().then(() => {
+  console.log(`[Server] Listening on port: ${port}`);
+});
