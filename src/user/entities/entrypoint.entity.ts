@@ -19,6 +19,9 @@ export class Entrypoint extends BaseEntity {
   clientId?: string;
 
   @Property()
+  createdAt = new Date();
+
+  @Property()
   lastLogin: Date = new Date();
 
   @ManyToOne(() => User)

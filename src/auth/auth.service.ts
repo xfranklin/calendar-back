@@ -168,9 +168,9 @@ export class AuthService {
         id
       );
 
-      if (entrypoint?.id) {
+      if (entrypoint?._id) {
         const user = await this.userService.findUserByEntryPoint(
-          entrypoint?.id
+          entrypoint?._id.toString()
         );
         return await this.setCookies(user, response, redirectUrl);
       } else {
@@ -233,7 +233,9 @@ export class AuthService {
     redirectUrl?: string
   ) {
     const access = this.jwtService.generateAccessToken(user);
-    const refresh = await this.jwtService.generateRefreshToken(user.id);
+    const refresh = await this.jwtService.generateRefreshToken(
+      user._id.toString()
+    );
     const userData = getUser(user);
     this.jwtService.setCookies(
       access,
