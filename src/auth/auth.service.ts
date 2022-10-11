@@ -4,12 +4,13 @@ import { UserService } from "../user/user.service";
 import { SignUpDto } from "./dto/signup.dto";
 import { Request, Response } from "express";
 import * as argon2 from "argon2";
-import { UserType } from "../user/types/user.type";
 import { LoginDto } from "./dto/login.dto";
 import { EntrypointEnum } from "../user/types/entrypoints.enum";
 import { SocialsService } from "../socials/socials.service";
 import { ConfigService } from "@nestjs/config";
 import { getUser } from "../user/helpers/getUser";
+import { TokenDto } from "./dto/token.dto";
+import { User } from "../user/entities/user.entity";
 
 @Injectable()
 export class AuthService {
@@ -28,27 +29,29 @@ export class AuthService {
     if (isEmailExist) {
       throw new HttpException("EMAIL_ALREADY_EXIST", HttpStatus.BAD_REQUEST);
     }
+
     const password = await argon2.hash(userDto.password);
-    const { _id } = await this.userService.createEntrypoint(
-      EntrypointEnum.EMAIL,
-      { ...userDto, password }
+
+    const user = await this.userService.create(
+      { email: userDto.email },
+      {
+        type: EntrypointEnum.EMAIL,
+        ...userDto,
+        password
+      }
     );
-    const user: UserType = await this.userService.create({
-      email: userDto.email,
-      entrypoints: [_id]
-    });
     await this.setCookies(user, response);
   }
 
-  // ┬  ┌─┐┌─┐┬┌┐┌
-  // │  │ ││ ┬││││
-  // ┴─┘└─┘└─┘┴┘└┘
+  // ┬  ┌─┐┌─┐┬ ┌┐┌
+  // │  │ ││ ┬│ │││
+  // ┴─┘└─┘└─┘┴ ┘└┘
   public async login(userDto: LoginDto, response: Response) {
     const user = await this.userService.findUserByEmail(userDto.email);
     if (user?.entrypoints) {
-      const emailEntrypoint = user.entrypoints.find(
-        ({ type }) => type === EntrypointEnum.EMAIL
-      );
+      const emailEntrypoint = user.entrypoints
+        .getItems()
+        .find(({ type }) => type === EntrypointEnum.EMAIL);
 
       if (emailEntrypoint) {
         if (await argon2.verify(emailEntrypoint.password, userDto.password)) {
@@ -93,9 +96,9 @@ export class AuthService {
 
       const user = await this.userService.findUserByEmail(email);
       if (user) {
-        const hasEntrypoint = user.entrypoints.find(
-          ({ clientId }) => clientId === sub
-        );
+        const hasEntrypoint = user.entrypoints
+          .getItems()
+          .find(({ clientId }) => clientId === sub);
 
         if (hasEntrypoint) {
           await this.setCookies(user, response, redirectUrl);
@@ -108,21 +111,25 @@ export class AuthService {
         const birthday = await this.socialsService.getGoogleUserBirthday(
           access_token
         );
-        const { _id } = await this.userService.createEntrypoint(
-          EntrypointEnum.GOOGLE,
-          { clientId: sub, email }
+
+        const user = await this.userService.create(
+          {
+            email,
+            birthday,
+            firstName: given_name,
+            lastName: family_name,
+            isVerified: true
+          },
+          {
+            type: EntrypointEnum.GOOGLE,
+            clientId: sub,
+            email
+          }
         );
-        const newUser = await this.userService.create({
-          email,
-          birthday,
-          entrypoints: [_id],
-          firstName: given_name,
-          lastName: family_name,
-          isVerified: true
-        });
-        await this.setCookies(newUser, response, redirectUrl);
+        await this.setCookies(user, response, redirectUrl);
       }
-    } catch {
+    } catch (e) {
+      console.error(`AUTH Google: ${e}`);
       response.redirect(this.configService.get<string>("APP_URL"));
     }
   }
@@ -161,9 +168,9 @@ export class AuthService {
         id
       );
 
-      if (entrypoint?._id) {
+      if (entrypoint?.id) {
         const user = await this.userService.findUserByEntryPoint(
-          entrypoint?._id
+          entrypoint?.id
         );
         return await this.setCookies(user, response, redirectUrl);
       } else {
@@ -174,22 +181,25 @@ export class AuthService {
           }
         }
 
-        const { _id } = await this.userService.createEntrypoint(
-          EntrypointEnum.FACEBOOK,
-          { clientId: id, ...(email && { email }) }
+        const user = await this.userService.create(
+          {
+            ...(birthday && { birthday: new Date(birthday) }),
+            ...(email && { email }),
+            ...(first_name && { firstName: first_name }),
+            ...(last_name && { lastName: last_name }),
+            isVerified: !!email
+          },
+          {
+            type: EntrypointEnum.FACEBOOK,
+            clientId: id,
+            ...(email && { email })
+          }
         );
-        const newUser = await this.userService.create({
-          entrypoints: [_id],
-          ...(birthday && { birthday: new Date(birthday) }),
-          ...(email && { email }),
-          ...(first_name && { firstName: first_name }),
-          ...(last_name && { lastName: last_name }),
-          isVerified: !!email
-        });
 
-        return await this.setCookies(newUser, response, redirectUrl);
+        return await this.setCookies(user, response, redirectUrl);
       }
-    } catch {
+    } catch (e) {
+      console.error(`AUTH Facebook: ${e}`);
       response.redirect(this.configService.get<string>("APP_URL"));
     }
   }
@@ -218,12 +228,12 @@ export class AuthService {
   // ********************************************
 
   private async setCookies(
-    user: UserType,
+    user: User,
     response: Response,
     redirectUrl?: string
   ) {
     const access = this.jwtService.generateAccessToken(user);
-    const refresh = await this.jwtService.generateRefreshToken(user._id);
+    const refresh = await this.jwtService.generateRefreshToken(user.id);
     const userData = getUser(user);
     this.jwtService.setCookies(
       access,
@@ -233,4 +243,7 @@ export class AuthService {
       userData
     );
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async validateEmail(_body: TokenDto) {}
 }

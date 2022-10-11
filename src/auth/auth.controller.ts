@@ -1,16 +1,15 @@
-import { Controller, Post, Get, Body, Query, Res, Req } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { SignUpDto } from "./dto/signup.dto";
-import { Response, Request } from "express";
+import { Request, Response } from "express";
 import { LoginDto } from "./dto/login.dto";
-import { SocialsService } from "../socials/socials.service";
+import { TokenDto } from "./dto/token.dto";
+import { PasswordCreateDto } from "./dto/password-create.dto";
+import { EmailDto } from "./dto/email.dto";
 
 @Controller("auth")
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly socialsService: SocialsService
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   /**
    * Sign Up method
@@ -45,44 +44,40 @@ export class AuthController {
     return await this.authService.logout(request, response);
   }
 
+  /**
+   * Retrieve new refresh & access token if refresh token is valid
+   *
+   * @param request
+   * @param response
+   */
   @Get("refresh")
   async refresh(@Req() request: Request, @Res() response: Response) {
     return await this.authService.refresh(request, response);
   }
 
-  @Get("social/google")
-  async getGoogleUrl(
-    @Query("redirect_uri") redirectUrl,
-    @Res() response: Response
-  ) {
-    return this.socialsService.getGoogleAuthUrl(response, redirectUrl);
+  /**
+   * Validate email using token from email
+   *
+   * @param body
+   */
+  @Post("validate-email")
+  async validateEmail(@Body() body: TokenDto) {
+    return await this.authService.validateEmail(body);
   }
 
-  @Get("social/facebook")
-  async getFacebookUrl(
-    @Query("redirect_uri") redirectUrl,
-    @Res() response: Response
-  ) {
-    return this.socialsService.getFacebookAuthUrl(response, redirectUrl);
+  /**
+   * Send email with link for creating new password
+   *
+   * @param body
+   */
+  @Post("password/forgot")
+  async passwordForgot(@Body() _body: EmailDto) {
+    return Promise.resolve();
   }
 
-  @Get("social/google-response")
-  async googleAuth(
-    @Query("code") code,
-    @Query("state") state,
-    @Req() request: Request,
-    @Res() response: Response
-  ) {
-    return await this.authService.googleAuth(code, state, request, response);
-  }
-
-  @Get("social/facebook-response")
-  async facebookAuth(
-    @Query("code") code,
-    @Query("state") state,
-    @Req() request: Request,
-    @Res() response: Response
-  ) {
-    return await this.authService.facebookAuth(code, state, request, response);
+  @Post("password/create")
+  async passwordCreate(@Body() body: PasswordCreateDto) {
+    if (body) {
+    }
   }
 }

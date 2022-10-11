@@ -1,18 +1,16 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { InjectModel } from "@nestjs/mongoose";
-import { Refresh, RefreshDocument } from "./shemas/refresh.shema";
-import { Model } from "mongoose";
 import * as jwt from "jsonwebtoken";
-import { UserType } from "../user/types/user.type";
 import { Response } from "express";
 import { UserService } from "../user/user.service";
+import { RefreshRepository } from "./refresh.repository";
+import { User } from "../user/entities/user.entity";
+import { getUser } from "../user/helpers/getUser";
 
 @Injectable()
 export class JwtService {
   constructor(
-    @InjectModel(Refresh.name)
-    private readonly refreshModel: Model<RefreshDocument>,
+    private readonly refreshRepository: RefreshRepository,
     private readonly configService: ConfigService,
     private readonly userService: UserService
   ) {}
@@ -22,7 +20,7 @@ export class JwtService {
     refresh: string,
     response: Response,
     redirectUrl?: string,
-    user?: UserType
+    user?: ReturnType<typeof getUser>
   ) {
     response
       .cookie("ACCESS_TOKEN", access, {
@@ -48,37 +46,34 @@ export class JwtService {
       .json({ status: HttpStatus.OK });
   }
 
-  public generateAccessToken({
-    _id,
-    email,
-    role,
-    isVerified
-  }: UserType): string {
-    const token = jwt.sign(
+  public generateAccessToken({ _id, email, role, isVerified }: User): string {
+    return jwt.sign(
       { type: "ACCESS", id: _id, email, role, isVerified },
       this.configService.get<string>("ACCESS_TOKEN_SECRET"),
       {
         expiresIn: Number(this.configService.get<string>("ACCESS_EXPIRATION"))
       }
     );
-    return token;
   }
 
   public async generateRefreshToken(userId: string): Promise<string> {
     const ttl = Number(this.configService.get<string>("REFRESH_EXPIRATION"));
-    const expiredAt = Date.now() + ttl * 1000;
-    const token = jwt.sign(
+    const expiredAt = new Date(Date.now() + ttl * 1000);
+    const refreshToken = jwt.sign(
       { type: "REFRESH", id: userId },
       this.configService.get<string>("REFRESH_TOKEN_SECRET"),
       {
         expiresIn: ttl
       }
     );
-    const { refreshToken } = await this.refreshModel.create({
+    const newRefresh = this.refreshRepository.create({
       userId,
-      refreshToken: token,
+      refreshToken,
       expiredAt
     });
+
+    await this.refreshRepository.persistAndFlush(newRefresh);
+
     return refreshToken;
   }
 
@@ -87,10 +82,10 @@ export class JwtService {
     ACCESS_TOKEN: string,
     response: Response
   ) {
-    this.isAccessTokenExpired(ACCESS_TOKEN);
-    this.validateRefreshToken(REFRESH_TOKEN);
-    const { userId, _id } = await this.findRefreshToken(REFRESH_TOKEN);
-    await this.deleteRefreshById(_id);
+    this.verifyAccessToken(ACCESS_TOKEN);
+    this.verifyRefreshToken(REFRESH_TOKEN);
+    const { userId, id } = await this.findRefreshToken(REFRESH_TOKEN);
+    await this.deleteRefreshById(id);
     const refreshToken = await this.generateRefreshToken(userId);
     const user = await this.userService.findUserById(userId);
     const accessToken = this.generateAccessToken(user);
@@ -98,7 +93,7 @@ export class JwtService {
   }
 
   public async deleteRefreshToken(refreshToken: string) {
-    await this.refreshModel.deleteOne({ refreshToken });
+    await this.refreshRepository.nativeDelete({ refreshToken });
   }
 
   // ********************************************
@@ -107,7 +102,7 @@ export class JwtService {
   // ╩  ╩╚═╩ ╚╝ ╩ ╩ ╩ ╚═╝  ╩ ╩╚═╝ ╩ ╩ ╩╚═╝═╩╝╚═╝
   // ********************************************
   private async findRefreshToken(token: string) {
-    const refreshToken = await this.refreshModel.findOne({
+    const refreshToken = await this.refreshRepository.findOne({
       refreshToken: token
     });
     if (!refreshToken) {
@@ -116,7 +111,7 @@ export class JwtService {
     return refreshToken;
   }
 
-  private validateRefreshToken(token: string) {
+  private verifyRefreshToken(token: string) {
     try {
       jwt.verify(token, this.configService.get<string>("REFRESH_TOKEN_SECRET"));
     } catch {
@@ -124,7 +119,7 @@ export class JwtService {
     }
   }
 
-  private isAccessTokenExpired(token: string) {
+  private verifyAccessToken(token: string) {
     try {
       jwt.verify(token, this.configService.get<string>("ACCESS_TOKEN_SECRET"));
     } catch (e) {
@@ -137,6 +132,6 @@ export class JwtService {
   }
 
   private async deleteRefreshById(id: string) {
-    await this.refreshModel.deleteOne({ _id: id });
+    await this.refreshRepository.nativeDelete({ id: id });
   }
 }

@@ -1,18 +1,23 @@
 import {
-  Injectable,
-  NestMiddleware,
   HttpException,
-  HttpStatus
+  HttpStatus,
+  Injectable,
+  NestMiddleware
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { HttpService } from "@nestjs/axios";
 import { lastValueFrom, map } from "rxjs";
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { RecaptchaType } from "../types/recaptcha.type";
+import { RecaptchaTokenDto } from "../auth/dto/recaptcha-token.dto";
 
 const THRESHOLD = 0.3;
 const API = "https://www.google.com/recaptcha/api/siteverify";
 
+/**
+ * Middleware to check if request has passed google recaptcha.
+ * Check disabled in development
+ */
 @Injectable()
 export class RecaptchaMiddleware implements NestMiddleware {
   constructor(
@@ -21,7 +26,7 @@ export class RecaptchaMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const { body }: { body: { token: string } } = req;
+    const body: RecaptchaTokenDto = req.body;
     if (process.env.NODE_ENV === "development") return next();
 
     if (body.token) {

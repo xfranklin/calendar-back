@@ -1,31 +1,33 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import * as sgMail from "@sendgrid/mail";
 import { LettersEnum } from "./types/letters.enum";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { MailLimits, MailLimitsDocument } from "./shemas/mail-limits.schema";
+import { ConfigService } from "@nestjs/config";
+import { MailLimitsRepository } from "./mail-limits.repository";
+import type { MailDataRequired } from "@sendgrid/helpers/classes/mail";
 
 const LETTERS_LIMIT = 5;
 
 @Injectable()
 export class MailSenderService {
   constructor(
-    @InjectModel(MailLimits.name)
-    private readonly mailLimits: Model<MailLimitsDocument>,
+    private readonly mailLimitsRepository: MailLimitsRepository,
     private readonly configService: ConfigService
   ) {}
 
   // ┌─┐┌─┐┌┐┌┌┬┐  ┌─┐┌┬┐┬┌─┐┬
   // └─┐├┤ │││ ││  ├┤ ││││├─┤│
   // └─┘└─┘┘└┘─┴┘  └─┘┴ ┴┴┴ ┴┴─┘
-  public async sendMail(userEmail: string, letterId: LettersEnum, data: any) {
+  public async sendMail(
+    userEmail: string,
+    letterId: LettersEnum,
+    data: Record<string, string>
+  ) {
     const limit = await this.getLimit(userEmail, letterId);
     if (limit) {
       if (limit.counter < LETTERS_LIMIT) {
         limit.counter = limit.counter + 1;
         limit.expiredAt = new Date().toISOString() as unknown as Date;
-        await limit.save();
+        await this.mailLimitsRepository.persist(limit);
         await this.send(userEmail, letterId, data);
       } else {
         const MONGO_TTL_THRESHOLD = 60;
@@ -48,34 +50,40 @@ export class MailSenderService {
   // ********************************************
 
   private async createLimit(userEmail: string, letterId: string) {
-    await this.mailLimits.create({
+    const limit = this.mailLimitsRepository.create({
       userEmail,
       letterId
     });
+
+    await this.mailLimitsRepository.persistAndFlush(limit);
+    return limit;
   }
 
   private async getLimit(userEmail: string, letterId: string) {
-    return this.mailLimits.findOne({ userEmail, letterId });
+    return await this.mailLimitsRepository.findOne({ userEmail, letterId });
   }
 
-  private async send(userEmail: string, letterId: LettersEnum, data: any) {
+  private async send(
+    userEmail: string,
+    letterId: LettersEnum,
+    data: Record<string, string>
+  ) {
     const FROM = "notify@oooi.app";
     sgMail.setApiKey(this.configService.get<string>("SENDGRID_API_KEY"));
-    const message = {
+    const message: MailDataRequired = {
       from: {
         email: FROM
+        // TODO add name
       },
-      template_id: letterId,
+      templateId: letterId,
       personalizations: [
         {
           to: [{ email: userEmail }],
-          dynamic_template_data: data
+          dynamicTemplateData: data
         }
       ]
     };
     try {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       await sgMail.send(message);
     } catch (e) {
       throw new HttpException(
