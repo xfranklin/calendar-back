@@ -55,10 +55,15 @@ export class UserService {
   // ╩  ╩╚═╩ ╚╝ ╩ ╩ ╩ ╚═╝  ╩ ╩╚═╝ ╩ ╩ ╩╚═╝═╩╝╚═╝
   // ********************************************
   public async createEntrypoint(
-    type: EntrypointEnum,
-    data: Partial<Entrypoint>
+    userId: string,
+    data: Partial<Entrypoint>,
+    type: EntrypointEnum
   ): Promise<Entrypoint> {
-    const entrypoint = this.entrypointRepository.create({ type, ...data });
+    const entrypoint = this.entrypointRepository.create({
+      ...data,
+      type,
+      user: userId
+    });
     await this.entrypointRepository.persistAndFlush(entrypoint);
     return entrypoint;
   }
@@ -101,7 +106,9 @@ export class UserService {
   }
 
   public async findUserByEntryPoint(id: string): Promise<User> {
-    return this.userRepository.findOne({ entrypoints: id });
+    return (
+      await this.entrypointRepository.findOne({ id }, { populate: ["user"] })
+    )?.user;
   }
 
   public async isEmailExist(email: string): Promise<boolean> {
