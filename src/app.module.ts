@@ -20,7 +20,8 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
           clientUrl: configService.get<string>("MONGO_URI"),
           entities: ["./**/*.entity.js"],
           entitiesTs: ["./**/*.entity.ts"],
-          debug: process.env.NODE_ENV !== "production"
+          debug: process.env.NODE_ENV !== "production",
+          ensureIndexes: true
         };
       },
       inject: [ConfigService]

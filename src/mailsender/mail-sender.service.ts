@@ -5,7 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { MailLimitsRepository } from "./mail-limits.repository";
 import type { MailDataRequired } from "@sendgrid/helpers/classes/mail";
 
-const LETTERS_LIMIT = 5;
+const LETTERS_LIMIT = 3;
 
 @Injectable()
 export class MailSenderService {
@@ -25,17 +25,20 @@ export class MailSenderService {
     const limit = await this.getLimit(userEmail, letterId);
     if (limit) {
       if (limit.counter < LETTERS_LIMIT) {
+        const ttl = Number(
+          this.configService.get<string>("LETTERS_EXPIRATION")
+        );
         limit.counter = limit.counter + 1;
-        limit.expiredAt = new Date().toISOString() as unknown as Date;
-        await this.mailLimitsRepository.persist(limit);
+        limit.expiredAt = new Date(Date.now() + ttl * 1000);
+        await this.mailLimitsRepository.persistAndFlush(limit);
         await this.send(userEmail, letterId, data);
       } else {
         const MONGO_TTL_THRESHOLD = 60;
-        const secondPassed: number =
-          (Date.now() - Date.parse(limit.expiredAt as unknown as string)) /
+        const secondsLeft: number =
+          (Date.parse(limit.expiredAt as unknown as string) - Date.now()) /
           1000;
-        const secondsLeft = MONGO_TTL_THRESHOLD + 70 - secondPassed;
-        return { secondsLeft };
+        const maxSecondsLeft = MONGO_TTL_THRESHOLD + secondsLeft;
+        return { maxSecondsLeft };
       }
     } else {
       await this.createLimit(userEmail, letterId);
@@ -50,9 +53,12 @@ export class MailSenderService {
   // ********************************************
 
   private async createLimit(userEmail: string, letterId: string) {
+    const ttl = Number(this.configService.get<string>("LETTERS_EXPIRATION"));
+    const expiredAt = new Date(Date.now() + ttl * 1000);
     const limit = this.mailLimitsRepository.create({
       userEmail,
-      letterId
+      letterId,
+      expiredAt
     });
 
     await this.mailLimitsRepository.persistAndFlush(limit);

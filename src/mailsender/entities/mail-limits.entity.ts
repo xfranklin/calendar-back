@@ -11,9 +11,9 @@ export class MailLimits extends BaseEntity {
   letterId: string;
 
   @Property({ default: 1 })
-  counter: number;
+  counter = 1;
 
   @Property()
-  @Index({ options: { expireAfterSeconds: 70 } })
+  @Index({ options: { expireAfterSeconds: 0 } })
   expiredAt: Date = new Date();
 }

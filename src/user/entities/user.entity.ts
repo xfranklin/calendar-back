@@ -16,10 +16,10 @@ export class User extends BaseEntity {
   entrypoints: Collection<Entrypoint> = new Collection<Entrypoint>(this);
 
   @Property({ default: false })
-  isVerified!: boolean;
+  isVerified = false;
 
   @Property({ default: false })
-  isOnboarded!: boolean;
+  isOnboarded = false;
 
   @Property({ default: null, nullable: true })
   firstName?: string;
@@ -37,5 +37,5 @@ export class User extends BaseEntity {
   updatedAt: Date = new Date();
 
   @Property({ default: false })
-  isBlocked: boolean;
+  isBlocked = false;
 }

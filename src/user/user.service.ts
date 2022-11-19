@@ -18,7 +18,7 @@ export class UserService {
 
   // TODO DElETE ME
   public async testSend() {
-    await this.mailSenderService.sendMail(
+    return await this.mailSenderService.sendMail(
       "d.feleniuk@oooi.app",
       LettersEnum.EMAIL_VERIFICATION,
       { user_name: "test Name", verify_link: "https://www.google.com/" }
