@@ -65,7 +65,7 @@ export class SocialsService {
     if (birthday?.date) {
       const { year, month, day } = birthday.date;
       if (year && month && day) {
-        return new Date(year, month - 1, day);
+        return new Date(Date.UTC(year, month - 1, day));
       }
     }
     return null;

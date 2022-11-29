@@ -183,7 +183,12 @@ export class AuthService {
 
         const user = await this.userService.create(
           {
-            ...(birthday && { birthday: new Date(birthday) }),
+            ...(birthday && {
+              birthday: (() => {
+                const [month, day, year] = birthday.split("/");
+                return new Date(Date.UTC(year, Number(month) - 1, day));
+              })()
+            }),
             ...(email && { email }),
             ...(first_name && { firstName: first_name }),
             ...(last_name && { lastName: last_name }),
