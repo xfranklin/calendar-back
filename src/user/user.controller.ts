@@ -5,6 +5,7 @@ import { Roles } from "../decorators/roles.decorator";
 import { RoleEnum } from "./types/roles.enum";
 import { UserService } from "./user.service";
 import { OnboardingDto } from "./dto/onboarding.dto";
+import { ChangePasswordDto } from "./dto/changePassword.dto";
 
 @Controller("user")
 @UseGuards(AuthGuard)
@@ -17,10 +18,28 @@ export class UserController {
     return await this.userService.me(request?.user.id);
   }
 
+  @Get("entrypoints")
+  @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
+  async entrypoints(@Req() request) {
+    return await this.userService.entrypoints(request?.user.id);
+  }
+
   @Post("onboard")
   @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
   async onboard(@Body() userData: OnboardingDto, @Req() request) {
     return await this.userService.onboard(request?.user.id, userData);
+  }
+
+  @Post("change-password")
+  @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
+  async changePassword(
+    @Body() passwordData: ChangePasswordDto,
+    @Req() request
+  ) {
+    return await this.userService.changePassword(
+      request?.user.id,
+      passwordData
+    );
   }
 
   @Post("all")

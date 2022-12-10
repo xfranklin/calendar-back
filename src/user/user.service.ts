@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { User } from "./entities/user.entity";
 import { Entrypoint } from "./entities/entrypoint.entity";
 import { EntrypointEnum } from "./types/entrypoints.enum";
@@ -7,6 +7,7 @@ import { MailSenderService } from "../mailsender/mail-sender.service";
 import { LettersEnum } from "../mailsender/types/letters.enum";
 import { UserRepository } from "./user.repository";
 import { EntrypointRepository } from "./entrypoint.repository";
+import * as argon2 from "argon2";
 
 @Injectable()
 export class UserService {
@@ -33,6 +34,17 @@ export class UserService {
     return getUser(user);
   }
 
+  // ┌─┐┌┐┌┌┬┐┬─┐┬ ┬┌─┐┌─┐┬┌┐┌┌┬┐┌─┐
+  // ├┤ │││ │ ├┬┘└┬┘├─┘│ │││││ │ └─┐
+  // └─┘┘└┘ ┴ ┴└─ ┴ ┴  └─┘┴┘└┘ ┴ └─┘
+  public async entrypoints(id: string): Promise<ReturnType<any>> {
+    const entrypoints = await this.entrypointRepository.find({ user: id });
+    return entrypoints.map(({ id, type }) => ({
+      id,
+      type
+    }));
+  }
+
   // ┌─┐┌┐┌┌┐ ┌─┐┌─┐┬─┐┌┬┐┬┌┐┌┌─┐
   // │ ││││├┴┐│ │├─┤├┬┘ │││││││ ┬
   // └─┘┘└┘└─┘└─┘┴ ┴┴└──┴┘┴┘└┘└─┘
@@ -47,6 +59,40 @@ export class UserService {
 
     // TO DO SEND CONFIRM EMAIL
     return { user: getUser(user) };
+  }
+
+  // ┌─┐┬ ┬┌─┐┌┐┌┌─┐┌─┐  ┌─┐┌─┐┌─┐┌─┐┬ ┬┌─┐┬─┐┌┬┐
+  // │  ├─┤├─┤││││ ┬├┤   ├─┘├─┤└─┐└─┐││││ │├┬┘ ││
+  // └─┘┴ ┴┴ ┴┘└┘└─┘└─┘  ┴  ┴ ┴└─┘└─┘└┴┘└─┘┴└──┴┘
+  public async changePassword(id: string, passwordData) {
+    const user = await this.findUserById(id);
+    const emailEntrypoint = user.entrypoints
+      .getItems()
+      .find(({ type }) => type === EntrypointEnum.EMAIL);
+    if (!emailEntrypoint) {
+      throw new HttpException(
+        "DO_NOT_HAVE_EMAIL_ENTRYPOINT",
+        HttpStatus.BAD_REQUEST
+      );
+    }
+    if (!user.isVerified) {
+      throw new HttpException("NOT_VERIFIED_USER", HttpStatus.BAD_REQUEST);
+    }
+    if (
+      !(await argon2.verify(emailEntrypoint.password, passwordData.oldPassword))
+    ) {
+      throw new HttpException("WRONG_OLD_PASSWORD", HttpStatus.BAD_REQUEST);
+    }
+    const password = await argon2.hash(passwordData.newPassword);
+    const updatedPassword = await this.updatePasswordByEntryPointId(
+      emailEntrypoint.id,
+      password
+    );
+    if (updatedPassword.id) {
+      return {
+        status: 200
+      };
+    }
   }
 
   // ********************************************
@@ -114,5 +160,14 @@ export class UserService {
   public async isEmailExist(email: string): Promise<boolean> {
     const user = await this.userRepository.findOne({ email }, { fields: [] });
     return user !== null;
+  }
+
+  public async updatePasswordByEntryPointId(id: string, password: string) {
+    const entity = await this.entrypointRepository.findOne({ id });
+    if (entity) {
+      entity.password = password;
+      await this.entrypointRepository.persistAndFlush(entity);
+    }
+    return entity;
   }
 }
