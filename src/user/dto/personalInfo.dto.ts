@@ -1,6 +1,6 @@
 import { IsNotEmpty, MaxLength, IsISO8601 } from "class-validator";
 
-export class OnboardingDto {
+export class PersonalInfoDto {
   @IsNotEmpty({ message: "EMPTY_FIELD" })
   @MaxLength(128, { message: "MAX_LENGTH" })
   firstName: string;

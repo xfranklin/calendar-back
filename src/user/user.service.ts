@@ -50,7 +50,6 @@ export class UserService {
   // └─┘┘└┘└─┘└─┘┴ ┴┴└──┴┘┴┘└┘└─┘
   public async onboard(id: string, personalInfo) {
     const birthday = new Date(personalInfo.birthday);
-
     const user = await this.userRepository.findAndUpdate(id, {
       ...personalInfo,
       birthday,
@@ -58,6 +57,18 @@ export class UserService {
     });
 
     // TO DO SEND CONFIRM EMAIL
+    return { user: getUser(user) };
+  }
+
+  // ┬ ┬┌─┐┌┬┐┌─┐┌┬┐┌─┐  ┌─┐┌─┐┬─┐┌─┐┌─┐┌┐┌┌─┐┬    ┬┌┐┌┌─┐┌─┐
+  // │ │├─┘ ││├─┤ │ ├┤   ├─┘├┤ ├┬┘└─┐│ ││││├─┤│    ││││├┤ │ │
+  // └─┘┴  ─┴┘┴ ┴ ┴ └─┘  ┴  └─┘┴└─└─┘└─┘┘└┘┴ ┴┴─┘  ┴┘└┘└  └─┘
+  public async updatePersonalInfo(id: string, personalInfo) {
+    const birthday = new Date(personalInfo.birthday);
+    const user = await this.userRepository.findAndUpdate(id, {
+      ...personalInfo,
+      birthday
+    });
     return { user: getUser(user) };
   }
 

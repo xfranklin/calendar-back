@@ -4,7 +4,7 @@ import { NoAuth } from "../decorators/no-auth.decorator";
 import { Roles } from "../decorators/roles.decorator";
 import { RoleEnum } from "./types/roles.enum";
 import { UserService } from "./user.service";
-import { OnboardingDto } from "./dto/onboarding.dto";
+import { PersonalInfoDto } from "./dto/personalInfo.dto";
 import { ChangePasswordDto } from "./dto/changePassword.dto";
 
 @Controller("user")
@@ -26,8 +26,17 @@ export class UserController {
 
   @Post("onboard")
   @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
-  async onboard(@Body() userData: OnboardingDto, @Req() request) {
+  async onboard(@Body() userData: PersonalInfoDto, @Req() request) {
     return await this.userService.onboard(request?.user.id, userData);
+  }
+
+  @Post("update-personal-info")
+  @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
+  async updatePersonalInfo(@Body() userData: PersonalInfoDto, @Req() request) {
+    return await this.userService.updatePersonalInfo(
+      request?.user.id,
+      userData
+    );
   }
 
   @Post("change-password")
