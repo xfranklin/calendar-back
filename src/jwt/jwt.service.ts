@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as jwt from "jsonwebtoken";
-import { Response } from "express";
+import { FastifyReply } from "fastify";
 import { UserService } from "../user/user.service";
 import { RefreshRepository } from "./refresh.repository";
 import { User } from "../user/entities/user.entity";
@@ -18,7 +18,7 @@ export class JwtService {
   public setCookies(
     access: string,
     refresh: string,
-    response: Response,
+    response: FastifyReply,
     redirectUrl?: string,
     user?: ReturnType<typeof getUser>
   ) {
@@ -34,16 +34,16 @@ export class JwtService {
     } else {
       response
         .status(HttpStatus.OK)
-        .json({ status: HttpStatus.OK, ...(user && { user }) });
+        .send({ status: HttpStatus.OK, ...(user && { user }) });
     }
   }
 
-  public clearCookies(response: Response) {
+  public clearCookies(response: FastifyReply) {
     response
       .clearCookie("ACCESS_TOKEN", { httpOnly: true })
       .clearCookie("REFRESH_TOKEN", { httpOnly: true })
       .status(HttpStatus.OK)
-      .json({ status: HttpStatus.OK });
+      .send({ status: HttpStatus.OK });
   }
 
   public generateAccessToken({ _id, email, role, isVerified }: User): string {
@@ -80,7 +80,7 @@ export class JwtService {
   public async refreshToken(
     REFRESH_TOKEN: string,
     ACCESS_TOKEN: string,
-    response: Response
+    response: FastifyReply
   ) {
     this.verifyAccessToken(ACCESS_TOKEN);
     this.verifyRefreshToken(REFRESH_TOKEN);

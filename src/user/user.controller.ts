@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, UseGuards, Body } from "@nestjs/common";
+import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "../guards/auth.guard";
 import { NoAuth } from "../decorators/no-auth.decorator";
 import { Roles } from "../decorators/roles.decorator";
@@ -6,6 +6,7 @@ import { RoleEnum } from "./types/roles.enum";
 import { UserService } from "./user.service";
 import { PersonalInfoDto } from "./dto/personalInfo.dto";
 import { ChangePasswordDto } from "./dto/changePassword.dto";
+import { UserDecorator } from "../decorators/user.decorator";
 
 @Controller("user")
 @UseGuards(AuthGuard)
@@ -14,41 +15,41 @@ export class UserController {
 
   @Get("me")
   @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
-  async me(@Req() request) {
-    return await this.userService.me(request?.user.id);
+  async me(@UserDecorator("id") userId: string) {
+    return await this.userService.me(userId);
   }
 
   @Get("entrypoints")
   @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
-  async entrypoints(@Req() request) {
-    return await this.userService.entrypoints(request?.user.id);
+  async entrypoints(@UserDecorator("id") userId: string) {
+    return await this.userService.entrypoints(userId);
   }
 
   @Post("onboard")
   @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
-  async onboard(@Body() userData: PersonalInfoDto, @Req() request) {
-    return await this.userService.onboard(request?.user.id, userData);
+  async onboard(
+    @Body() userData: PersonalInfoDto,
+    @UserDecorator("id") userId: string
+  ) {
+    return await this.userService.onboard(userId, userData);
   }
 
   @Post("update-personal-info")
   @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
-  async updatePersonalInfo(@Body() userData: PersonalInfoDto, @Req() request) {
-    return await this.userService.updatePersonalInfo(
-      request?.user.id,
-      userData
-    );
+  async updatePersonalInfo(
+    @Body() userData: PersonalInfoDto,
+    @UserDecorator("id") userId: string
+  ) {
+    return await this.userService.updatePersonalInfo(userId, userData);
   }
 
   @Post("change-password")
   @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
   async changePassword(
     @Body() passwordData: ChangePasswordDto,
-    @Req() request
+    @UserDecorator("id") userId: string
   ) {
-    return await this.userService.changePassword(
-      request?.user.id,
-      passwordData
-    );
+    return await this.userService.changePassword(userId, passwordData);
   }
 
   @Post("all")

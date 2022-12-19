@@ -1,15 +1,9 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod
-} from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { JwtModule } from "../jwt/jwt.module";
 import { UserModule } from "../user/user.module";
 import { SocialsModule } from "../socials/socials.module";
-import { RecaptchaMiddleware } from "../middlewares/recaptcha.middleware";
 import { HttpModule } from "@nestjs/axios";
 import { SocialController } from "./social.controller";
 
@@ -24,12 +18,7 @@ import { SocialController } from "./social.controller";
   providers: [AuthService]
 })
 export class AuthModule implements NestModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(RecaptchaMiddleware)
-      .forRoutes(
-        { path: "/auth/signup", method: RequestMethod.POST },
-        { path: "/auth/login", method: RequestMethod.POST }
-      );
+  configure(_consumer: MiddlewareConsumer): void {
+    //
   }
 }

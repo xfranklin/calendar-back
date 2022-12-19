@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { HttpService } from "@nestjs/axios";
+import { FastifyReply } from "fastify";
 import { lastValueFrom, map } from "rxjs";
 import { GoogleOauthResponseType } from "./types/google-oauth-response.type";
-import { Response } from "express";
 
 @Injectable()
 export class SocialsService {
@@ -15,7 +15,7 @@ export class SocialsService {
   // ╔═╗╔═╗╔═╗╔═╗╦  ╔═╗  ╔═╗╦ ╦╔╦╗╦ ╦
   // ║ ╦║ ║║ ║║ ╦║  ║╣   ╠═╣║ ║ ║ ╠═╣
   // ╚═╝╚═╝╚═╝╚═╝╩═╝╚═╝  ╩ ╩╚═╝ ╩ ╩ ╩
-  getGoogleAuthUrl(response: Response, redirectUrl: string) {
+  getGoogleAuthUrl(response: FastifyReply, redirectUrl: string) {
     const CLIENT_ID = this.configService.get<string>("GOOGLE_CLIENT_ID");
     const REDIRECT_URL = `${redirectUrl}/api/auth/social/google-response`;
     const RANDOM_STRING = Math.random().toString(36).substring(2, 15);
@@ -34,7 +34,7 @@ export class SocialsService {
         httpOnly: true
       })
       .status(HttpStatus.OK)
-      .json({ url });
+      .send({ url });
   }
 
   async getGoogleTokens(code, redirectUrl): Promise<GoogleOauthResponseType> {
@@ -83,7 +83,7 @@ export class SocialsService {
   // ╔═╗╔═╗╔═╗╔═╗╔╗ ╔═╗╔═╗╦╔═  ╔═╗╦ ╦╔╦╗╦ ╦
   // ╠╣ ╠═╣║  ║╣ ╠╩╗║ ║║ ║╠╩╗  ╠═╣║ ║ ║ ╠═╣
   // ╚  ╩ ╩╚═╝╚═╝╚═╝╚═╝╚═╝╩ ╩  ╩ ╩╚═╝ ╩ ╩ ╩
-  async getFacebookAuthUrl(response: Response, redirectUrl: string) {
+  async getFacebookAuthUrl(response: FastifyReply, redirectUrl: string) {
     const CLIENT_ID = this.configService.get<string>("FACEBOOK_CLIENT_ID");
     const REDIRECT_URL = `${redirectUrl}/api/auth/social/facebook-response`;
     const RANDOM_STRING = Math.random().toString(36).substring(2, 15);
@@ -98,7 +98,7 @@ export class SocialsService {
         httpOnly: true
       })
       .status(HttpStatus.OK)
-      .json({ url });
+      .send({ url });
   }
 
   async getFacebookTokens(code: string, redirectUrl: string) {

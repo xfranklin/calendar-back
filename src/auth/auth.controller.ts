@@ -1,11 +1,20 @@
-import { Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards
+} from "@nestjs/common";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { AuthService } from "./auth.service";
 import { SignUpDto } from "./dto/signup.dto";
-import { Request, Response } from "express";
 import { LoginDto } from "./dto/login.dto";
 import { TokenDto } from "./dto/token.dto";
 import { PasswordCreateDto } from "./dto/password-create.dto";
 import { EmailDto } from "./dto/email.dto";
+import { RecaptchaGuard } from "../guards/recaptcha.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -18,7 +27,8 @@ export class AuthController {
    * @param response
    */
   @Post("signup")
-  async signUp(@Body() signUpData: SignUpDto, @Res() response: Response) {
+  @UseGuards(RecaptchaGuard)
+  async signUp(@Body() signUpData: SignUpDto, @Res() response: FastifyReply) {
     return await this.authService.signUp(signUpData, response);
   }
 
@@ -29,7 +39,8 @@ export class AuthController {
    * @param response
    */
   @Post("login")
-  async login(@Body() loginData: LoginDto, @Res() response: Response) {
+  @UseGuards(RecaptchaGuard)
+  async login(@Body() loginData: LoginDto, @Res() response: FastifyReply) {
     return await this.authService.login(loginData, response);
   }
 
@@ -40,7 +51,7 @@ export class AuthController {
    * @param response
    */
   @Post("logout")
-  async logout(@Req() request: Request, @Res() response: Response) {
+  async logout(@Req() request: FastifyRequest, @Res() response: FastifyReply) {
     return await this.authService.logout(request, response);
   }
 
@@ -51,7 +62,7 @@ export class AuthController {
    * @param response
    */
   @Get("refresh")
-  async refresh(@Req() request: Request, @Res() response: Response) {
+  async refresh(@Req() request: FastifyRequest, @Res() response: FastifyReply) {
     return await this.authService.refresh(request, response);
   }
 
@@ -71,13 +82,17 @@ export class AuthController {
    * @param body
    */
   @Post("password/forgot")
-  async passwordForgot(@Body() _body: EmailDto) {
-    return Promise.resolve();
+  async passwordForgot(@Body() body: EmailDto) {
+    return this.authService.forgotPassword(body);
   }
 
-  @Post("password/create")
+  /**
+   * Create password using token from email link
+   *
+   * @param body
+   */
+  @Post("password/forgot/create")
   async passwordCreate(@Body() body: PasswordCreateDto) {
-    if (body) {
-    }
+    return this.authService.forgotPasswordCreate(body);
   }
 }

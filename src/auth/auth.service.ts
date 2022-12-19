@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { FastifyReply, FastifyRequest } from "fastify";
+import * as argon2 from "argon2";
 import { JwtService } from "../jwt/jwt.service";
 import { UserService } from "../user/user.service";
 import { SignUpDto } from "./dto/signup.dto";
-import { Request, Response } from "express";
-import * as argon2 from "argon2";
 import { LoginDto } from "./dto/login.dto";
 import { EntrypointEnum } from "../user/types/entrypoints.enum";
 import { SocialsService } from "../socials/socials.service";
@@ -11,6 +11,8 @@ import { ConfigService } from "@nestjs/config";
 import { getUser } from "../user/helpers/getUser";
 import { TokenDto } from "./dto/token.dto";
 import { User } from "../user/entities/user.entity";
+import { EmailDto } from "./dto/email.dto";
+import { PasswordCreateDto } from "./dto/password-create.dto";
 
 @Injectable()
 export class AuthService {
@@ -24,7 +26,7 @@ export class AuthService {
   // ┌─┐┬┌─┐┌┐┌┬ ┬┌─┐
   // └─┐││ ┬││││ │├─┘
   // └─┘┴└─┘┘└┘└─┘┴
-  public async signUp(userDto: SignUpDto, response: Response) {
+  public async signUp(userDto: SignUpDto, response: FastifyReply) {
     const isEmailExist = await this.userService.isEmailExist(userDto.email);
     if (isEmailExist) {
       throw new HttpException("EMAIL_ALREADY_EXIST", HttpStatus.BAD_REQUEST);
@@ -46,7 +48,7 @@ export class AuthService {
   // ┬  ┌─┐┌─┐┬ ┌┐┌
   // │  │ ││ ┬│ │││
   // ┴─┘└─┘└─┘┴ ┘└┘
-  public async login(userDto: LoginDto, response: Response) {
+  public async login(userDto: LoginDto, response: FastifyReply) {
     const user = await this.userService.findUserByEmail(userDto.email);
     if (user?.entrypoints) {
       const emailEntrypoint = user.entrypoints
@@ -72,8 +74,8 @@ export class AuthService {
   public async googleAuth(
     code: string,
     state: string,
-    request: Request,
-    response: Response
+    request: FastifyRequest,
+    response: FastifyReply
   ) {
     if (request.cookies.GOOGLE_STATE !== state) {
       return response.redirect(this.configService.get<string>("APP_URL"));
@@ -140,8 +142,8 @@ export class AuthService {
   public async facebookAuth(
     code: string,
     state: string,
-    request: Request,
-    response: Response
+    request: FastifyRequest,
+    response: FastifyReply
   ) {
     if (request.cookies.FACEBOOK_STATE !== state) {
       return response.redirect(this.configService.get<string>("APP_URL"));
@@ -212,7 +214,7 @@ export class AuthService {
   // ┬─┐┌─┐┌─┐┬─┐┌─┐┌─┐┬ ┬
   // ├┬┘├┤ ├┤ ├┬┘├┤ └─┐├─┤
   // ┴└─└─┘└  ┴└─└─┘└─┘┴ ┴
-  public async refresh(request: Request, response: Response) {
+  public async refresh(request: FastifyRequest, response: FastifyReply) {
     const { REFRESH_TOKEN, ACCESS_TOKEN } = request.cookies;
     await this.jwtService.refreshToken(REFRESH_TOKEN, ACCESS_TOKEN, response);
   }
@@ -220,7 +222,7 @@ export class AuthService {
   // ┬  ┌─┐┌─┐┌─┐┬ ┬┌┬┐
   // │  │ ││ ┬│ ││ │ │
   // ┴─┘└─┘└─┘└─┘└─┘ ┴
-  public async logout(request: Request, response: Response) {
+  public async logout(request: FastifyRequest, response: FastifyReply) {
     const { REFRESH_TOKEN } = request.cookies;
     await this.jwtService.deleteRefreshToken(REFRESH_TOKEN);
     await this.jwtService.clearCookies(response);
@@ -234,7 +236,7 @@ export class AuthService {
 
   private async setCookies(
     user: User,
-    response: Response,
+    response: FastifyReply,
     redirectUrl?: string
   ) {
     const access = this.jwtService.generateAccessToken(user);
@@ -251,6 +253,15 @@ export class AuthService {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async validateEmail(_body: TokenDto) {}
+  async validateEmail({ token }: TokenDto) {
+    return Promise.resolve(token);
+  }
+
+  forgotPassword({ email }: EmailDto) {
+    return Promise.resolve(email);
+  }
+
+  forgotPasswordCreate({ token, password }: PasswordCreateDto) {
+    return Promise.resolve({ token, password });
+  }
 }

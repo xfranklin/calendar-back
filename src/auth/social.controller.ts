@@ -1,6 +1,6 @@
 import { Controller, Get, Query, Req, Res } from "@nestjs/common";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { AuthService } from "./auth.service";
-import { Request, Response } from "express";
 import { SocialsService } from "../socials/socials.service";
 
 @Controller("auth/social")
@@ -13,7 +13,7 @@ export class SocialController {
   @Get("google")
   async getGoogleUrl(
     @Query("redirect_uri") redirectUrl,
-    @Res() response: Response
+    @Res() response: FastifyReply
   ) {
     return this.socialsService.getGoogleAuthUrl(response, redirectUrl);
   }
@@ -21,7 +21,7 @@ export class SocialController {
   @Get("facebook")
   async getFacebookUrl(
     @Query("redirect_uri") redirectUrl,
-    @Res() response: Response
+    @Res() response: FastifyReply
   ) {
     return this.socialsService.getFacebookAuthUrl(response, redirectUrl);
   }
@@ -30,8 +30,8 @@ export class SocialController {
   async googleAuth(
     @Query("code") code,
     @Query("state") state,
-    @Req() request: Request,
-    @Res() response: Response
+    @Req() request: FastifyRequest,
+    @Res() response: FastifyReply
   ) {
     return await this.authService.googleAuth(code, state, request, response);
   }
@@ -40,8 +40,8 @@ export class SocialController {
   async facebookAuth(
     @Query("code") code,
     @Query("state") state,
-    @Req() request: Request,
-    @Res() response: Response
+    @Req() request: FastifyRequest,
+    @Res() response: FastifyReply
   ) {
     return await this.authService.facebookAuth(code, state, request, response);
   }
