@@ -23,10 +23,10 @@ export class JwtService {
     user?: ReturnType<typeof getUser>
   ) {
     response
-      .cookie("ACCESS_TOKEN", access, {
+      .setCookie("ACCESS_TOKEN", access, {
         httpOnly: true
       })
-      .cookie("REFRESH_TOKEN", refresh, {
+      .setCookie("REFRESH_TOKEN", refresh, {
         httpOnly: true
       });
     if (redirectUrl) {
