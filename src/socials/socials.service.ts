@@ -32,6 +32,7 @@ export class SocialsService {
     response
       .setCookie("GOOGLE_STATE", STATE, {
         httpOnly: true,
+        maxAge: 2_629_800_000,
         path: "/"
       })
       .status(HttpStatus.OK)
@@ -97,6 +98,7 @@ export class SocialsService {
     response
       .setCookie("FACEBOOK_STATE", STATE, {
         httpOnly: true,
+        maxAge: 2_629_800_000,
         path: "/"
       })
       .status(HttpStatus.OK)
