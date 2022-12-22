@@ -78,7 +78,7 @@ export class AuthService {
     response: FastifyReply
   ) {
     if (request.cookies.GOOGLE_STATE !== state) {
-      return response.redirect(this.configService.get<string>("APP_URL"));
+      return response.redirect(302, this.configService.get<string>("APP_URL"));
     }
 
     try {
@@ -105,7 +105,7 @@ export class AuthService {
         if (hasEntrypoint) {
           await this.setCookies(user, response, redirectUrl);
         } else {
-          response.redirect(redirectUrl);
+          response.redirect(302, redirectUrl);
         }
       } else {
         const { given_name, family_name } =
@@ -132,7 +132,7 @@ export class AuthService {
       }
     } catch (e) {
       console.error(`AUTH Google: ${e}`);
-      response.redirect(this.configService.get<string>("APP_URL"));
+      response.redirect(302, this.configService.get<string>("APP_URL"));
     }
   }
 
@@ -146,7 +146,7 @@ export class AuthService {
     response: FastifyReply
   ) {
     if (request.cookies.FACEBOOK_STATE !== state) {
-      return response.redirect(this.configService.get<string>("APP_URL"));
+      return response.redirect(302, this.configService.get<string>("APP_URL"));
     }
 
     try {
@@ -179,7 +179,7 @@ export class AuthService {
         if (email) {
           const isExist = await this.userService.isEmailExist(email);
           if (isExist) {
-            return response.redirect(redirectUrl);
+            return response.redirect(302, redirectUrl);
           }
         }
 
@@ -207,7 +207,7 @@ export class AuthService {
       }
     } catch (e) {
       console.error(`AUTH Facebook: ${e}`);
-      response.redirect(this.configService.get<string>("APP_URL"));
+      response.redirect(302, this.configService.get<string>("APP_URL"));
     }
   }
 

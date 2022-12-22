@@ -32,7 +32,7 @@ export class JwtService {
         path: "/"
       });
     if (redirectUrl) {
-      return response.redirect(redirectUrl);
+      return response.redirect(302, redirectUrl);
     } else {
       response
         .status(HttpStatus.OK)
