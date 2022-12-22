@@ -31,7 +31,8 @@ export class SocialsService {
     const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URL}&response_type=code&scope=${SCOPE}&state=${STATE}`;
     response
       .setCookie("GOOGLE_STATE", STATE, {
-        httpOnly: true
+        httpOnly: true,
+        maxAge: 2_629_800_000
       })
       .status(HttpStatus.OK)
       .send({ url });
@@ -95,7 +96,8 @@ export class SocialsService {
     const url = `https://www.facebook.com/v13.0/dialog/oauth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URL}&state=${STATE}&response_type=code&scope=${SCOPE}`;
     response
       .setCookie("FACEBOOK_STATE", STATE, {
-        httpOnly: true
+        httpOnly: true,
+        maxAge: 2_629_800_000
       })
       .status(HttpStatus.OK)
       .send({ url });

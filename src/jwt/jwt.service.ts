@@ -24,10 +24,12 @@ export class JwtService {
   ) {
     response
       .setCookie("ACCESS_TOKEN", access, {
-        httpOnly: true
+        httpOnly: true,
+        maxAge: 2_629_800_000
       })
       .setCookie("REFRESH_TOKEN", refresh, {
-        httpOnly: true
+        httpOnly: true,
+        maxAge: 2_629_800_000
       });
     if (redirectUrl) {
       return response.redirect(redirectUrl);
