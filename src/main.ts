@@ -9,7 +9,7 @@ import {
 import fastifyCookie from "@fastify/cookie";
 import { ConfigService } from "@nestjs/config";
 
-const defaultPort = 3000;
+let port = 3000;
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -36,9 +36,12 @@ async function bootstrap() {
   await app.register(fastifyCookie, {
     secret: config.get("COOKIE_SECRET")
   });
-  await app.listen(config.get<number>("PORT") || defaultPort);
+
+  port = config.get<number>("PORT") || port;
+
+  await app.listen(port);
 }
 
 bootstrap().then(() => {
-  console.log(`[Server] Listening on port: ${defaultPort}`);
+  console.log(`[Server] Listening on port: ${port}`);
 });
