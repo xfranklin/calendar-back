@@ -52,6 +52,12 @@ export class UserController {
     return await this.userService.changePassword(userId, passwordData);
   }
 
+  @Get("resend-verification")
+  @Roles(RoleEnum.USER, RoleEnum.PRO_USER)
+  async resendVerification(@UserDecorator("id") userId: string) {
+    return await this.userService.resendVerification(userId);
+  }
+
   @Post("all")
   @NoAuth()
   async all() {

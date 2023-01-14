@@ -106,6 +106,21 @@ export class UserService {
     }
   }
 
+  // ┬─┐┌─┐┌─┐┌─┐┌┐┌┌┬┐  ┬  ┬┌─┐┬─┐┬┌─┐┬┌─┐┌─┐┌┬┐┬┌─┐┌┐┌
+  // ├┬┘├┤ └─┐├┤ │││ ││  └┐┌┘├┤ ├┬┘│├┤ ││  ├─┤ │ ││ ││││
+  // ┴└─└─┘└─┘└─┘┘└┘─┴┘   └┘ └─┘┴└─┴└  ┴└─┘┴ ┴ ┴ ┴└─┘┘└┘
+  public async resendVerification(id: string) {
+    const user = await this.findUserById(id);
+    if (user.isVerified) {
+      throw new HttpException("USER_VERIFIED", HttpStatus.BAD_REQUEST);
+    }
+    return await this.mailSenderService.sendMail(
+      user.email,
+      LettersEnum.EMAIL_VERIFICATION,
+      { user_name: user.firstName, verify_link: "https://www.google.com/" }
+    );
+  }
+
   // ********************************************
   // ╔═╗╦═╗╦╦  ╦╔═╗╔╦╗╔═╗  ╔╦╗╔═╗╔╦╗╦ ╦╔═╗╔╦╗╔═╗
   // ╠═╝╠╦╝║╚╗╔╝╠═╣ ║ ║╣   ║║║║╣  ║ ╠═╣║ ║ ║║╚═╗

@@ -32,6 +32,7 @@ export class MailSenderService {
         limit.expiredAt = new Date(Date.now() + ttl * 1000);
         await this.mailLimitsRepository.persistAndFlush(limit);
         await this.send(userEmail, letterId, data);
+        return { status: HttpStatus.OK };
       } else {
         const MONGO_TTL_THRESHOLD = 60;
         const secondsLeft: number =
