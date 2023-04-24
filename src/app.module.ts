@@ -6,6 +6,7 @@ import { UserModule } from "./user/user.module";
 import { MailSenderModule } from "./mailsender/mail-sender.module";
 import { SocialsModule } from "./socials/socials.module";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
+import { PlannerModule } from "./planner/planner.module";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
         return {
+          registerRequestContext: true,
           type: "mongo",
           clientUrl: configService.get<string>("MONGO_URI"),
           entities: ["./**/*.entity.js"],
@@ -29,8 +31,9 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
     AuthModule,
     JwtModule,
     UserModule,
+    SocialsModule,
     MailSenderModule,
-    SocialsModule
+    PlannerModule
   ],
   controllers: [],
   providers: []
