@@ -10,11 +10,13 @@ const JETX_PAGE = "https://vertbet.com/en-US/casinos/game/jetx";
 
 @Injectable()
 export class PlannerService {
-  @Cron("*/5 * * * *")
+  @Cron("15 * * * * *")
+  // @Cron("*/5 * * * *")
   async handleCron() {
     const rawGames = await fs.readFile("src/jetx.txt", {
       encoding: "utf8"
     });
+    console.log("DIR", __dirname);
 
     let { games } = JSON.parse(rawGames);
     const games_100 = await this.getLast100Games();
