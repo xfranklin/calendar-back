@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import * as fs from "fs/promises";
 import puppeteer from "puppeteer";
 
@@ -10,8 +10,7 @@ const JETX_PAGE = "https://vertbet.com/en-US/casinos/game/jetx";
 
 @Injectable()
 export class PlannerService {
-  @Cron("20 * * * * *")
-  // @Cron("*/5 * * * *")
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async handleCron() {
     const rawGames = await fs.readFile("/var/www/dev.oooi.app/jetx.txt", {
       encoding: "utf8"
