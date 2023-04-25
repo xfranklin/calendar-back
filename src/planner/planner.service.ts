@@ -13,10 +13,9 @@ export class PlannerService {
   @Cron("15 * * * * *")
   // @Cron("*/5 * * * *")
   async handleCron() {
-    const rawGames = await fs.readFile("src/jetx.txt", {
+    const rawGames = await fs.readFile("dist/jetx.txt", {
       encoding: "utf8"
     });
-    console.log("DIR", __dirname);
 
     let { games } = JSON.parse(rawGames);
     const games_100 = await this.getLast100Games();
@@ -41,7 +40,7 @@ export class PlannerService {
       });
       games = games.concat(games_100.slice(LAST_INDEX));
     }
-    await fs.writeFile("src/jetx.txt", JSON.stringify({ games }));
+    await fs.writeFile("dist/jetx.txt", JSON.stringify({ games }));
   }
 
   async getLast100Games() {
