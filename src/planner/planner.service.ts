@@ -10,7 +10,7 @@ const JETX_PAGE = "https://vertbet.com/en-US/casinos/game/jetx";
 
 @Injectable()
 export class PlannerService {
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async handleCron() {
     const rawGames = await fs.readFile("/var/www/dev.oooi.app/jetx.txt", {
       encoding: "utf8"
@@ -22,16 +22,16 @@ export class PlannerService {
     if (!games.length) {
       games = games.concat(games_100);
     } else {
-      const last_25 = games.slice(-25);
+      const last_15 = games.slice(-15);
       let LAST_INDEX = 0;
       games_100.forEach((item_1, index_1) => {
-        if (item_1 === last_25[0]) {
+        if (item_1 === last_15[0]) {
           if (
-            last_25.every(
+            last_15.every(
               (item_2, index_2) => item_2 === games_100[index_1 + index_2]
             )
           ) {
-            LAST_INDEX = index_1 + 25;
+            LAST_INDEX = index_1 + 15;
           }
         } else {
           return;
